@@ -1,0 +1,115 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4"><Meta name="ExplicitAutoJoints">true</Meta>
+<Item class="Workspace" referent="RBX36"><Properties><string name="Name">Workspace</string></Properties><Item class="SpawnLocation" referent="RBX1"><Properties><string name="Name">SpawnLocation</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4283484280</Color3uint8><CoordinateFrame name="CFrame"><X>0</X><Y>5</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>20</X><Y>1</Y><Z>20</Z></Vector3><bool name="Neutral">true</bool><bool name="AllowTeamChangeOnTouch">false</bool><int name="Duration">0</int><bool name="CanCollide">true</bool></Properties></Item><Item class="Part" referent="RBX2"><Properties><string name="Name">Kill</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294912040</Color3uint8><CoordinateFrame name="CFrame"><X>0</X><Y>-30</Y><Z>-150</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>3000</X><Y>1</Y><Z>3000</Z></Vector3></Properties></Item><Item class="Part" referent="RBX3"><Properties><string name="Name">Stage_1</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294945360</Color3uint8><CoordinateFrame name="CFrame"><X>3.92</X><Y>5</Y><Z>-17</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX4"><Properties><string name="Name">Stage_2</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294633050</Color3uint8><CoordinateFrame name="CFrame"><X>4.87</X><Y>6</Y><Z>-28</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX5"><Properties><string name="Name">Stage_3</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4285455480</Color3uint8><CoordinateFrame name="CFrame"><X>2.14</X><Y>6</Y><Z>-39</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>10</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX6"><Properties><string name="Name">Kill</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294912040</Color3uint8><CoordinateFrame name="CFrame"><X>2.14</X><Y>6.7</Y><Z>-39</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>10</X><Y>0.4</Y><Z>1.5</Z></Vector3></Properties></Item><Item class="Part" referent="RBX7"><Properties><string name="Name">Stage_4</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4284132095</Color3uint8><CoordinateFrame name="CFrame"><X>-2.21</X><Y>7</Y><Z>-50</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="SpawnLocation" referent="RBX8"><Properties><string name="Name">Checkpoint_5</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294967295</Color3uint8><CoordinateFrame name="CFrame"><X>-4.89</X><Y>7</Y><Z>-64</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>14</X><Y>1</Y><Z>14</Z></Vector3><bool name="Neutral">true</bool><bool name="AllowTeamChangeOnTouch">false</bool><int name="Duration">0</int><bool name="CanCollide">true</bool></Properties></Item><Item class="Part" referent="RBX9"><Properties><string name="Name">Stage_6</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294927460</Color3uint8><CoordinateFrame name="CFrame"><X>-3.86</X><Y>8</Y><Z>-80</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>10</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX10"><Properties><string name="Name">Kill</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294912040</Color3uint8><CoordinateFrame name="CFrame"><X>-3.86</X><Y>8.7</Y><Z>-80</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>10</X><Y>0.4</Y><Z>1.5</Z></Vector3></Properties></Item><Item class="Part" referent="RBX11"><Properties><string name="Name">Stage_7</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294945360</Color3uint8><CoordinateFrame name="CFrame"><X>0.08</X><Y>8</Y><Z>-91</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX12"><Properties><string name="Name">Stage_8</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294633050</Color3uint8><CoordinateFrame name="CFrame"><X>3.97</X><Y>9</Y><Z>-102</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX13"><Properties><string name="Name">Stage_9</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4285455480</Color3uint8><CoordinateFrame name="CFrame"><X>4.85</X><Y>9</Y><Z>-113</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>10</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX14"><Properties><string name="Name">Kill</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294912040</Color3uint8><CoordinateFrame name="CFrame"><X>4.85</X><Y>9.7</Y><Z>-113</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>10</X><Y>0.4</Y><Z>1.5</Z></Vector3></Properties></Item><Item class="SpawnLocation" referent="RBX15"><Properties><string name="Name">Checkpoint_10</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294967295</Color3uint8><CoordinateFrame name="CFrame"><X>2.06</X><Y>10</Y><Z>-127</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>14</X><Y>1</Y><Z>14</Z></Vector3><bool name="Neutral">true</bool><bool name="AllowTeamChangeOnTouch">false</bool><int name="Duration">0</int><bool name="CanCollide">true</bool></Properties></Item><Item class="Part" referent="RBX16"><Properties><string name="Name">Stage_11</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4289362175</Color3uint8><CoordinateFrame name="CFrame"><X>-2.29</X><Y>10</Y><Z>-143</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX17"><Properties><string name="Name">Stage_12</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294927460</Color3uint8><CoordinateFrame name="CFrame"><X>-4.9</X><Y>11</Y><Z>-154</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>10</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX18"><Properties><string name="Name">Kill</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294912040</Color3uint8><CoordinateFrame name="CFrame"><X>-4.9</X><Y>11.7</Y><Z>-154</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>10</X><Y>0.4</Y><Z>1.5</Z></Vector3></Properties></Item><Item class="Part" referent="RBX19"><Properties><string name="Name">Stage_13</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294945360</Color3uint8><CoordinateFrame name="CFrame"><X>-3.81</X><Y>11</Y><Z>-165</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX20"><Properties><string name="Name">Stage_14</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294633050</Color3uint8><CoordinateFrame name="CFrame"><X>0.17</X><Y>12</Y><Z>-176</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="SpawnLocation" referent="RBX21"><Properties><string name="Name">Checkpoint_15</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294967295</Color3uint8><CoordinateFrame name="CFrame"><X>4.02</X><Y>12</Y><Z>-190</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>14</X><Y>1</Y><Z>14</Z></Vector3><bool name="Neutral">true</bool><bool name="AllowTeamChangeOnTouch">false</bool><int name="Duration">0</int><bool name="CanCollide">true</bool></Properties></Item><Item class="Part" referent="RBX22"><Properties><string name="Name">Stage_16</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4284132095</Color3uint8><CoordinateFrame name="CFrame"><X>4.83</X><Y>13</Y><Z>-206</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX23"><Properties><string name="Name">Stage_17</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4289362175</Color3uint8><CoordinateFrame name="CFrame"><X>1.98</X><Y>13</Y><Z>-217</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX24"><Properties><string name="Name">Stage_18</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294927460</Color3uint8><CoordinateFrame name="CFrame"><X>-2.36</X><Y>14</Y><Z>-228</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>10</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX25"><Properties><string name="Name">Kill</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294912040</Color3uint8><CoordinateFrame name="CFrame"><X>-2.36</X><Y>14.7</Y><Z>-228</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>10</X><Y>0.4</Y><Z>1.5</Z></Vector3></Properties></Item><Item class="Part" referent="RBX26"><Properties><string name="Name">Stage_19</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294945360</Color3uint8><CoordinateFrame name="CFrame"><X>-4.92</X><Y>14</Y><Z>-239</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="SpawnLocation" referent="RBX27"><Properties><string name="Name">Checkpoint_20</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294967295</Color3uint8><CoordinateFrame name="CFrame"><X>-3.75</X><Y>15</Y><Z>-253</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>14</X><Y>1</Y><Z>14</Z></Vector3><bool name="Neutral">true</bool><bool name="AllowTeamChangeOnTouch">false</bool><int name="Duration">0</int><bool name="CanCollide">true</bool></Properties></Item><Item class="Part" referent="RBX28"><Properties><string name="Name">Stage_21</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4285455480</Color3uint8><CoordinateFrame name="CFrame"><X>0.25</X><Y>15</Y><Z>-269</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>10</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX29"><Properties><string name="Name">Kill</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294912040</Color3uint8><CoordinateFrame name="CFrame"><X>0.25</X><Y>15.7</Y><Z>-269</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>10</X><Y>0.4</Y><Z>1.5</Z></Vector3></Properties></Item><Item class="Part" referent="RBX30"><Properties><string name="Name">Stage_22</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4284132095</Color3uint8><CoordinateFrame name="CFrame"><X>4.07</X><Y>16</Y><Z>-280</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX31"><Properties><string name="Name">Stage_23</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4289362175</Color3uint8><CoordinateFrame name="CFrame"><X>4.81</X><Y>16</Y><Z>-291</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX32"><Properties><string name="Name">Stage_24</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294927460</Color3uint8><CoordinateFrame name="CFrame"><X>1.91</X><Y>17</Y><Z>-302</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>10</X><Y>1</Y><Z>6</Z></Vector3></Properties></Item><Item class="Part" referent="RBX33"><Properties><string name="Name">Kill</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294912040</Color3uint8><CoordinateFrame name="CFrame"><X>1.91</X><Y>17.7</Y><Z>-302</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>10</X><Y>0.4</Y><Z>1.5</Z></Vector3></Properties></Item><Item class="SpawnLocation" referent="RBX34"><Properties><string name="Name">Checkpoint_25</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294967295</Color3uint8><CoordinateFrame name="CFrame"><X>-2.44</X><Y>17</Y><Z>-316</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>14</X><Y>1</Y><Z>14</Z></Vector3><bool name="Neutral">true</bool><bool name="AllowTeamChangeOnTouch">false</bool><int name="Duration">0</int><bool name="CanCollide">true</bool></Properties></Item><Item class="Part" referent="RBX35"><Properties><string name="Name">Finish</string><bool name="Anchored">true</bool><Color3uint8 name="Color3uint8">4294956800</Color3uint8><CoordinateFrame name="CFrame"><X>0</X><Y>17</Y><Z>-335</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Vector3 name="size"><X>20</X><Y>1</Y><Z>20</Z></Vector3></Properties></Item></Item>
+<Item class="ServerScriptService" referent="RBX37"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX38"><Properties><string name="Name">ObbyServer</string><ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+local TOTAL_STAGES = 25
+
+Players.PlayerAdded:Connect(function(player)
+	local ls = Instance.new("Folder"); ls.Name = "leaderstats"; ls.Parent = player
+	local stage = Instance.new("IntValue"); stage.Name = "Stage"; stage.Value = 0; stage.Parent = ls
+	local wins = Instance.new("IntValue"); wins.Name = "Wins"; wins.Value = 0; wins.Parent = ls
+end)
+
+local function getPlayer(hit)
+	local char = hit.Parent
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	if hum then return Players:GetPlayerFromCharacter(char), hum end
+end
+
+local cooldown = {}
+for _, p in ipairs(workspace:GetDescendants()) do
+	if p:IsA("BasePart") then
+		if p.Name == "Kill" then
+			p.Touched:Connect(function(hit)
+				local _, hum = getPlayer(hit)
+				if hum then hum.Health = 0 end
+			end)
+		elseif p.Name:match("^Checkpoint_") then
+			local num = tonumber(p.Name:match("%d+"))
+			p.Touched:Connect(function(hit)
+				local plr = getPlayer(hit)
+				if plr and plr:FindFirstChild("leaderstats") and plr.leaderstats.Stage.Value < num then
+					plr.leaderstats.Stage.Value = num
+					plr.RespawnLocation = p
+				end
+			end)
+		elseif p.Name == "Finish" then
+			p.Touched:Connect(function(hit)
+				local plr = getPlayer(hit)
+				if plr and not cooldown[plr] then
+					cooldown[plr] = true
+					plr.leaderstats.Wins.Value += 1
+					plr.leaderstats.Stage.Value = TOTAL_STAGES
+					task.delay(5, function() cooldown[plr] = nil end)
+				end
+			end)
+		end
+	end
+end
+]]></ProtectedString></Properties></Item></Item>
+<Item class="StarterPlayer" referent="RBX39"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX40"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX41"><Properties><string name="Name">ObbyGui</string><ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- ✏️ غيّر رقم الموسيقى هنا / change the music id here
+local MUSIC_ID = "rbxassetid://1837879082"
+
+local music = Instance.new("Sound")
+music.Name = "ObbyMusic"; music.SoundId = MUSIC_ID
+music.Looped = true; music.Volume = 0.4
+music.Parent = game:GetService("SoundService")
+music:Play()
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "ObbyGui"; gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 220, 0, 100)
+frame.Position = UDim2.new(0, 10, 0, 10)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+frame.BackgroundTransparency = 0.25
+frame.Parent = gui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+
+local function label(y, text)
+	local l = Instance.new("TextLabel")
+	l.Size = UDim2.new(1, -16, 0, 26); l.Position = UDim2.new(0, 8, 0, y)
+	l.BackgroundTransparency = 1; l.TextColor3 = Color3.new(1, 1, 1)
+	l.Font = Enum.Font.GothamBold; l.TextSize = 18
+	l.TextXAlignment = Enum.TextXAlignment.Left
+	l.Text = text; l.Parent = frame
+	return l
+end
+local stageL = label(6, "Stage: 0 / 25")
+local timeL = label(36, "Time: 0:00")
+local winsL = label(66, "Wins: 0")
+
+local btn = Instance.new("TextButton")
+btn.Size = UDim2.new(0, 110, 0, 34); btn.Position = UDim2.new(0, 10, 0, 118)
+btn.BackgroundColor3 = Color3.fromRGB(60, 160, 255); btn.TextColor3 = Color3.new(1, 1, 1)
+btn.Font = Enum.Font.GothamBold; btn.TextSize = 16; btn.Text = "🎵 Music: ON"
+btn.Parent = gui
+Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+btn.MouseButton1Click:Connect(function()
+	if music.Playing then music:Pause(); btn.Text = "🔇 Music: OFF"
+	else music:Resume(); btn.Text = "🎵 Music: ON" end
+end)
+
+local start = os.clock()
+task.spawn(function()
+	while true do
+		local t = math.floor(os.clock() - start)
+		timeL.Text = string.format("Time: %d:%02d", t // 60, t % 60)
+		task.wait(1)
+	end
+end)
+
+local ls = player:WaitForChild("leaderstats")
+local stage, wins = ls:WaitForChild("Stage"), ls:WaitForChild("Wins")
+local function refresh()
+	stageL.Text = "Stage: " .. stage.Value .. " / 25"
+	winsL.Text = "Wins: " .. wins.Value
+end
+stage.Changed:Connect(refresh); wins.Changed:Connect(refresh); refresh()
+wins.Changed:Connect(function() start = os.clock() end)
+]]></ProtectedString></Properties></Item></Item></Item>
+</roblox>
