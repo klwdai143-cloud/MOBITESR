@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="utf-8"?>
+<roblox version="4">
+  <External>null</External>
+  <External>null</External>
+  <Item class="Workspace" referent="RBX1">
+    <Properties>
+      <string name="Name">Workspace</string>
+    </Properties>
+  </Item>
+  <Item class="Players" referent="RBX2">
+    <Properties>
+      <string name="Name">Players</string>
+    </Properties>
+  </Item>
+  <Item class="Lighting" referent="RBX3">
+    <Properties>
+      <string name="Name">Lighting</string>
+    </Properties>
+  </Item>
+  <Item class="MaterialService" referent="RBX4">
+    <Properties>
+      <string name="Name">MaterialService</string>
+    </Properties>
+  </Item>
+  <Item class="ReplicatedStorage" referent="RBX5">
+    <Properties>
+      <string name="Name">ReplicatedStorage</string>
+    </Properties>
+    <Item class="Folder" referent="RBX6">
+      <Properties>
+        <string name="Name">AnimalHuntRemotes</string>
+      </Properties>
+    </Item>
+  </Item>
+  <Item class="ServerScriptService" referent="RBX7">
+    <Properties>
+      <string name="Name">ServerScriptService</string>
+    </Properties>
+    <Item class="Script" referent="RBX8">
+      <Properties>
+        <string name="Name">AnimalHuntServer</string>
+        <bool name="Disabled">false</bool>
+        <ProtectedString name="Source">-- Animal Hunting Simulator: server-authoritative playable starter place
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local DataStoreService = game:GetService("DataStoreService")
+local TweenService = game:GetService("TweenService")
+local Debris = game:GetService("Debris")
+local RunService = game:GetService("RunService")
+
+local REMOTES = ReplicatedStorage:FindFirstChild("AnimalHuntRemotes") or Instance.new("Folder")
+REMOTES.Name = "AnimalHuntRemotes"; REMOTES.Parent = ReplicatedStorage
+local Action = REMOTES:FindFirstChild("Action") or Instance.new("RemoteEvent"); Action.Name="Action"; Action.Parent=REMOTES
+local Update = REMOTES:FindFirstChild("Update") or Instance.new("RemoteEvent"); Update.Name="Update"; Update.Parent=REMOTES
+local Notice = REMOTES:FindFirstChild("Notice") or Instance.new("RemoteEvent"); Notice.Name="Notice"; Notice.Parent=REMOTES
+
+local DATASTORE = DataStoreService:GetDataStore("AnimalHuntSimulator_v1")
+local DATA = {}
+local PLOTS = {}
+local ZONES = {
+ Forest={center=Vector3.new(-330,0,0), color=Color3.fromRGB(71,145,73), accent=Color3.fromRGB(38,100,55), ground=Enum.Material.Grass},
+ Desert={center=Vector3.new(330,0,0), color=Color3.fromRGB(218,181,102), accent=Color3.fromRGB(168,117,54), ground=Enum.Material.Sand},
+ Snow={center=Vector3.new(0,0,-330), color=Color3.fromRGB(210,231,241), accent=Color3.fromRGB(104,169,201), ground=Enum.Material.Snow},
+ Volcano={center=Vector3.new(0,0,330), color=Color3.fromRGB(57,48,49), accent=Color3.fromRGB(255,92,25), ground=Enum.Material.Basalt},
+}
+local ANIMALS = {
+ Rabbit={zone="Forest", rarity="Common", hp=28, income=3, color=Color3.fromRGB(228,211,183), body=Vector3.new(4,2.4,2.6), value=1},
+ Deer={zone="Forest", rarity="Uncommon", hp=58, income=8, color=Color3.fromRGB(155,104,65), body=Vector3.new(5,3,2.8), value=2},
+ Fox={zone="Forest", rarity="Rare", hp=95, income=17, color=Color3.fromRGB(225,102,39), body=Vector3.new(4.8,2.5,2.4), value=3},
+ DesertFox={zone="Desert", rarity="Uncommon", hp=75, income=12, color=Color3.fromRGB(236,186,111), body=Vector3.new(4.8,2.5,2.4), value=2},
+ Camel={zone="Desert", rarity="Rare", hp=145, income=29, color=Color3.fromRGB(174,127,75), body=Vector3.new(6.3,3.3,3.4), value=3},
+ Scorpion={zone="Desert", rarity="Epic", hp=210, income=52, color=Color3.fromRGB(94,58,43), body=Vector3.new(3.5,1.8,2.7), value=4},
+ SnowRabbit={zone="Snow", rarity="Uncommon", hp=83, income=14, color=Color3.fromRGB(246,246,238), body=Vector3.new(4,2.4,2.6), value=2},
+ ArcticFox={zone="Snow", rarity="Rare", hp=160, income=34, color=Color3.fromRGB(221,239,244), body=Vector3.new(4.8,2.5,2.4), value=3},
+ PolarBear={zone="Snow", rarity="Legendary", hp=360, income=105, color=Color3.fromRGB(235,238,231), body=Vector3.new(7,4.1,4.2), value=5},
+ FireLizard={zone="Volcano", rarity="Epic", hp=260, income=78, color=Color3.fromRGB(238,82,35), body=Vector3.new(5.5,2.5,2.5), value=4},
+ MagmaDragon={zone="Volcano", rarity="Legendary", hp=620, income=205, color=Color3.fromRGB(255,112,28), body=Vector3.new(8,3.7,4), value=6},
+ VolcanicTitan={zone="Volcano", rarity="Mythic", hp=1150, income=520, color=Color3.fromRGB(107,67,62), body=Vector3.new(9,6,6), value=8},
+}
+local WEAPONS = {
+ {name="Trailblazer", rarity="Common", price=0, damage=18, rate=0.75, color=Color3.fromRGB(105,116,125)},
+ {name="Ranger", rarity="Uncommon", price=300, damage=38, rate=0.65, color=Color3.fromRGB(52,163,112)},
+ {name="Longshot", rarity="Rare", price=1250, damage=88, rate=0.8, color=Color3.fromRGB(65,131,225)},
+ {name="Ember Rifle", rarity="Epic", price=4500, damage=190, rate=0.95, color=Color3.fromRGB(245,113,44)},
+ {name="Celestial", rarity="Legendary", price=16000, damage=430, rate=1.05, color=Color3.fromRGB(246,205,72)},
+}
+local function fresh()
+ return {Coins=250, Gems=0, Animals={}, Placed={}, Weapons={Trailblazer=true}, Equipped="Trailblazer", DamageLevel=0, Rebirth=0, OpenZones={Forest=true}, Index={}, Daily=os.time()-86400, Kills=0, Pending=0}
+end
+local function getData(p) return DATA[p] end
+local function pack(p)
+ local d=DATA[p]; if not d then return end
+ local counts={}; for n,c in pairs(d.Animals) do counts[n]=c end
+ return {Coins=d.Coins,Gems=d.Gems,Animals=counts,Placed=d.Placed,Weapons=d.Weapons,Equipped=d.Equipped,DamageLevel=d.DamageLevel,Rebirth=d.Rebirth,OpenZones=d.OpenZones,Index=d.Index,Kills=d.Kills,Pending=d.Pending}
+end
+local function update(p) if p and p.Parent then Update:FireClient(p,pack(p)) end end
+local function notice(p,msg) if p and p.Parent then Notice:FireClient(p,msg) end end
+local function save(p)
+ local d=DATA[p]; if not d then return end
+ local ok,err=pcall(function() DATASTORE:SetAsync("u"..p.UserId,d) end)
+ if not ok then warn("AnimalHunt save failed: ",err) end
+end
+local function load(p)
+ local d=fresh(); local ok,stored=pcall(function() return DATASTORE:GetAsync("u"..p.UserId) end)
+ if ok and type(stored)=="table" then
+  for k,v in pairs(stored) do d[k]=v end
+  d.Animals=d.Animals or {}; d.Placed=d.Placed or {}; d.Weapons=d.Weapons or {Trailblazer=true}; d.OpenZones=d.OpenZones or {Forest=true}; d.Index=d.Index or {}
+ end
+ DATA[p]=d; update(p)
+end
+
+local old=workspace:FindFirstChild("AnimalHuntWorld"); if old then old:Destroy() end
+local WORLD=Instance.new("Folder"); WORLD.Name="AnimalHuntWorld"; WORLD.Parent=workspace
+local ANIMAL_FOLDER=Instance.new("Folder"); ANIMAL_FOLDER.Name="Wildlife"; ANIMAL_FOLDER.Parent=WORLD
+local BASE_FOLDER=Instance.new("Folder"); BASE_FOLDER.Name="PlayerBases"; BASE_FOLDER.Parent=WORLD
+local function part(parent,name,size,cf,color,material,shape)
+ local x=Instance.new("Part"); x.Name=name; x.Size=size; x.CFrame=cf; x.Anchored=true; x.TopSurface=Enum.SurfaceType.Smooth; x.BottomSurface=Enum.SurfaceType.Smooth
+ x.Color=color; x.Material=material or Enum.Material.SmoothPlastic; x.CanCollide=true; if shape then x.Shape=shape end; x.Parent=parent; return x
+end
+local function deco(parent,name,size,cf,color,material,shape)
+ local x=part(parent,name,size,cf,color,material,shape); x.CanCollide=false; return x
+end
+local function sign(parent,text,cf,color)
+ local p=part(parent,"ZoneSign",Vector3.new(24,8,1),cf,color,Enum.Material.Wood); p.CanCollide=false
+ local sg=Instance.new("SurfaceGui"); sg.Face=Enum.NormalId.Front; sg.Parent=p
+ local t=Instance.new("TextLabel"); t.Size=UDim2.fromScale(1,1); t.BackgroundTransparency=1; t.Text=text; t.TextScaled=true; t.Font=Enum.Font.GothamBlack; t.TextColor3=Color3.new(1,1,1); t.Parent=sg
+end
+-- bright central hub and fountain
+part(WORLD,"HubIsland",Vector3.new(176,5,176),CFrame.new(0,-3,0),Color3.fromRGB(92,166,101),Enum.Material.Grass)
+part(WORLD,"HubPlaza",Vector3.new(82,1,82),CFrame.new(0,0,0),Color3.fromRGB(229,219,190),Enum.Material.Cobblestone)
+for _,v in ipairs({{0,0,-48,82,2,5},{0,0,48,82,2,5},{-48,0,0,5,2,82},{48,0,0,5,2,82}}) do part(WORLD,"StoneWalkway",Vector3.new(v[4],v[5],v[6]),CFrame.new(v[1],v[2],v[3]),Color3.fromRGB(194,185,157),Enum.Material.Cobblestone) end
+part(WORLD,"FountainBase",Vector3.new(22,2,22),CFrame.new(0,1,0),Color3.fromRGB(143,170,177),Enum.Material.Marble,Enum.PartType.Cylinder)
+part(WORLD,"FountainWater",Vector3.new(18,0.5,18),CFrame.new(0,2,0),Color3.fromRGB(57,177,218),Enum.Material.Glass,Enum.PartType.Cylinder)
+part(WORLD,"FountainSpire",Vector3.new(3,12,3),CFrame.new(0,8,0),Color3.fromRGB(225,239,224),Enum.Material.Marble,Enum.PartType.Cylinder)
+for i=1,12 do local a=(math.pi*2*i)/12; local x=math.cos(a)*74; local z=math.sin(a)*74; part(WORLD,"HubLamp",Vector3.new(1,11,1),CFrame.new(x,4,z),Color3.fromRGB(73,58,42),Enum.Material.Wood); local l=deco(WORLD,"LampGlow",Vector3.new(2,2,2),CFrame.new(x,10,z),Color3.fromRGB(255,220,138),Enum.Material.Neon,Enum.PartType.Ball); local light=Instance.new("PointLight"); light.Color=l.Color; light.Brightness=0.5; light.Range=14; light.Parent=l end
+-- roads to the four themed islands
+local zoneNames={"Forest","Desert","Snow","Volcano"}
+for _,zn in ipairs(zoneNames) do
+ local z=ZONES[zn]; local c=z.center
+ local dir=Vector3.new(c.X,0,c.Z).Unit
+ local start=dir*88; local finish=dir*242
+ local mid=(start+finish)/2
+ local length=(finish-start).Magnitude
+ local road=part(WORLD,zn.." causeway",Vector3.new(16,1,length),CFrame.lookAt(Vector3.new(mid.X,-.5,mid.Z),Vector3.new(finish.X,-.5,finish.Z)),Color3.fromRGB(172,161,135),Enum.Material.Cobblestone); road.CanCollide=true
+ -- distinct large island and mountain silhouette
+ part(WORLD,zn.." Region",Vector3.new(198,7,198),CFrame.new(c.X,-4,c.Z),z.color,z.ground)
+ for i=1,6 do
+  local a=i*math.pi/3; local dx=math.cos(a)*78; local dz=math.sin(a)*78
+  local rock=deco(WORLD,zn.." Mountain",Vector3.new(32+i%3*8,20+i%4*7,30+i%2*8),CFrame.new(c.X+dx,8+i%3*3,c.Z+dz)*CFrame.Angles(0,a,0),zn=="Snow" and Color3.fromRGB(197,220,235) or (zn=="Volcano" and Color3.fromRGB(48,42,42) or z.accent),zn=="Snow" and Enum.Material.Snow or Enum.Material.Rock,Enum.PartType.Ball)
+  rock.Shape=Enum.PartType.Ball
+ end
+ sign(WORLD,zn:upper().." ZONE",CFrame.new(c.X,9,c.Z-87)*CFrame.Angles(0,math.pi,0),z.accent)
+ -- portal back to hub
+ local gate=part(WORLD,zn.." Return Portal",Vector3.new(15,16,2),CFrame.new(c.X,7,c.Z-76),Color3.fromRGB(88,213,233),Enum.Material.Neon); gate.Transparency=.3; gate.CanCollide=false
+ local pp=Instance.new("ProximityPrompt"); pp.ActionText="Return to Hub"; pp.ObjectText="Portal"; pp.HoldDuration=0; pp.Parent=gate
+ pp.Triggered:Connect(function(p) local ch=p.Character; local root=ch and ch:FindFirstChild("HumanoidRootPart"); if root then root.CFrame=CFrame.new(0,5,0) end end)
+ if zn=="Forest" then
+  -- stylized trees, river and waterfall
+  part(WORLD,"Forest river",Vector3.new(16,1,118),CFrame.new(c.X-40,-.1,c.Z+3),Color3.fromRGB(49,164,206),Enum.Material.Glass)
+  part(WORLD,"Waterfall",Vector3.new(13,18,2),CFrame.new(c.X-40,8,c.Z-48),Color3.fromRGB(83,196,229),Enum.Material.Glass).Transparency=.25
+  for i=1,22 do local x=c.X+math.random(-78,78); local zz=c.Z+math.random(-78,78); if math.abs(x-(c.X-40))&gt;16 then deco(WORLD,"Forest tree trunk",Vector3.new(3,12,3),CFrame.new(x,3,zz),Color3.fromRGB(101,69,44),Enum.Material.Wood,Enum.PartType.Cylinder); deco(WORLD,"Forest canopy",Vector3.new(12,13,12),CFrame.new(x,12,zz),Color3.fromRGB(math.random(42,65),math.random(119,157),math.random(53,79)),Enum.Material.Grass,Enum.PartType.Ball) end end
+  for i=1,18 do deco(WORLD,"Forest boulder",Vector3.new(math.random(4,10),math.random(3,7),math.random(4,10)),CFrame.new(c.X+math.random(-78,78),-0.1,c.Z+math.random(-78,78)),Color3.fromRGB(108,116,99),Enum.Material.Rock,Enum.PartType.Ball) end
+ elseif zn=="Desert" then
+  for i=1,14 do local x=c.X+math.random(-75,75); local zz=c.Z+math.random(-75,75); deco(WORLD,"Dune",Vector3.new(math.random(24,42),math.random(7,15),math.random(20,36)),CFrame.new(x,1,zz),Color3.fromRGB(230,195,119),Enum.Material.Sand,Enum.PartType.Ball); deco(WORLD,"Cactus",Vector3.new(2,9,2),CFrame.new(x+9,3,zz+7),Color3.fromRGB(52,129,69),Enum.Material.Grass,Enum.PartType.Cylinder) end
+  part(WORLD,"Desert cave",Vector3.new(23,16,18),CFrame.new(c.X+50,4,c.Z+40),Color3.fromRGB(83,59,42),Enum.Material.Rock,Enum.PartType.Ball)
+ elseif zn=="Snow" then
+  part(WORLD,"Frozen lake",Vector3.new(50,1,42),CFrame.new(c.X+30,-.1,c.Z+25),Color3.fromRGB(137,207,230),Enum.Material.Ice,Enum.PartType.Cylinder)
+  for i=1,17 do local x=c.X+math.random(-78,78); local zz=c.Z+math.random(-78,78); deco(WORLD,"Snow pine trunk",Vector3.new(2,9,2),CFrame.new(x,2,zz),Color3.fromRGB(92,72,55),Enum.Material.Wood,Enum.PartType.Cylinder); deco(WORLD,"Snow pine crown",Vector3.new(11,15,11),CFrame.new(x,9,zz),Color3.fromRGB(228,244,250),Enum.Material.Snow,Enum.PartType.Ball) end
+  part(WORLD,"Ice cave",Vector3.new(27,17,22),CFrame.new(c.X-52,3,c.Z+39),Color3.fromRGB(143,201,222),Enum.Material.Ice,Enum.PartType.Ball)
+ else
+  for i=1,13 do local x=c.X+math.random(-72,72); local zz=c.Z+math.random(-72,72); deco(WORLD,"Basalt rock",Vector3.new(math.random(8,17),math.random(9,22),math.random(8,17)),CFrame.new(x,3,zz),Color3.fromRGB(48,43,44),Enum.Material.Basalt,Enum.PartType.Block) end
+  for i=1,7 do local x=c.X+math.random(-65,65); local zz=c.Z+math.random(-65,65); local lava=part(WORLD,"Glowing lava fissure",Vector3.new(3,0.4,math.random(12,24)),CFrame.new(x,.1,zz),Color3.fromRGB(255,84,21),Enum.Material.Neon); lava.CanCollide=false end
+  part(WORLD,"Volcano crater",Vector3.new(46,18,46),CFrame.new(c.X,12,c.Z+55),Color3.fromRGB(43,35,34),Enum.Material.Basalt,Enum.PartType.Ball)
+ end
+ -- portal hub at near entry
+ local hx=dir.X*78; local hz=dir.Z*78
+ local p=part(WORLD,zn.." Portal",Vector3.new(12,13,2),CFrame.new(hx,6,hz),z.accent,Enum.Material.Neon); p.Transparency=.25; p.CanCollide=false
+ local prompt=Instance.new("ProximityPrompt"); prompt.ActionText="Enter "..zn; prompt.ObjectText="Hunting Zone"; prompt.HoldDuration=0; prompt.Parent=p
+ prompt.Triggered:Connect(function(plr) local d=DATA[plr]; if not d then return end; if zn~="Forest" and not d.OpenZones[zn] then local cost=zn=="Desert" and 1200 or (zn=="Snow" and 6000 or 22000); if d.Coins&lt;cost then notice(plr,"Unlock this zone for "..cost.." coins in the Zones menu."); return end; d.Coins-=cost; d.OpenZones[zn]=true; notice(plr,zn.." Zone unlocked!") end; local ch=plr.Character; local root=ch and ch:FindFirstChild("HumanoidRootPart"); if root then root.CFrame=CFrame.new(c.X,5,c.Z) end; update(plr) end)
+end
+-- four neat claimable player-base plots around the hub
+for i=1,4 do
+ local ang=(i-1)*math.pi/2; local x=math.cos(ang)*116; local z=math.sin(ang)*116
+ local model=Instance.new("Model"); model.Name="BasePlot"..i; model.Parent=BASE_FOLDER
+ part(model,"Base lawn",Vector3.new(52,2,42),CFrame.new(x,-.8,z),Color3.fromRGB(95,166,103),Enum.Material.Grass)
+ part(model,"Base path",Vector3.new(7,.3,34),CFrame.new(x, .3,z),Color3.fromRGB(204,190,158),Enum.Material.Cobblestone)
+ local plaque=part(model,"Owner plaque",Vector3.new(13,5,1),CFrame.new(x,3,z-19),Color3.fromRGB(105,73,47),Enum.Material.Wood)
+ local gui=Instance.new("SurfaceGui"); gui.Face=Enum.NormalId.Front; gui.Parent=plaque; local label=Instance.new("TextLabel"); label.Size=UDim2.fromScale(1,1); label.BackgroundTransparency=1; label.Text="OPEN BASE"; label.TextColor3=Color3.new(1,1,1); label.TextScaled=true; label.Font=Enum.Font.GothamBold; label.Parent=gui
+ local pads={}; for j=1,4 do local px=x-15+((j-1)%2)*30; local pz=z-5+math.floor((j-1)/2)*16; local pad=part(model,"DisplaySlot"..j,Vector3.new(12,1,12),CFrame.new(px,1,pz),Color3.fromRGB(220,194,113),Enum.Material.Wood); pads[j]=pad end
+ PLOTS[i]={model=model,owner=nil,label=label,pads=pads,visuals={}}
+end
+local function claimPlot(p)
+ for _,plot in ipairs(PLOTS) do if not plot.owner then plot.owner=p; plot.label.Text=p.DisplayName.."'s Base"; return plot end end
+ return PLOTS[1]
+end
+local function makeAnimal(name,zone,pos)
+ local def=ANIMALS[name]; local model=Instance.new("Model"); model.Name=name; model:SetAttribute("Animal",true); model:SetAttribute("Species",name); model:SetAttribute("Zone",zone); model:SetAttribute("Health",def.hp); model:SetAttribute("MaxHealth",def.hp); model:SetAttribute("Rarity",def.rarity)
+ local c=def.color; local b=def.body
+ local body=deco(model,"Body",b,CFrame.new(pos+Vector3.new(0,2,0)),c,Enum.Material.SmoothPlastic,Enum.PartType.Ball); model.PrimaryPart=body
+ deco(model,"Head",Vector3.new(b.X*.43,b.Y*.55,b.Z*.48),CFrame.new(pos+Vector3.new(b.X*.38,2.6,0)),c,Enum.Material.SmoothPlastic,Enum.PartType.Ball)
+ deco(model,"Muzzle",Vector3.new(1.1,.75,.9),CFrame.new(pos+Vector3.new(b.X*.57,2.25,0)),Color3.fromRGB(244,220,190),Enum.Material.SmoothPlastic,Enum.PartType.Ball)
+ for _,side in ipairs({-1,1}) do
+  deco(model,"Ear",Vector3.new(.65,1.5,.55),CFrame.new(pos+Vector3.new(b.X*.34,3.45,side*.65))*CFrame.Angles(0,0,side*.18),c,Enum.Material.SmoothPlastic,Enum.PartType.Ball)
+  deco(model,"Eye",Vector3.new(.24,.24,.16),CFrame.new(pos+Vector3.new(b.X*.53,2.75,side*.39)),Color3.fromRGB(22,22,24),Enum.Material.SmoothPlastic,Enum.PartType.Ball)
+ end
+ for _,side in ipairs({-1,1}) do for _,front in ipairs({-1,1}) do deco(model,"Leg",Vector3.new(.65,1.8,.65),CFrame.new(pos+Vector3.new(front*b.X*.28,1,side*b.Z*.3)),c,Enum.Material.SmoothPlastic,Enum.PartType.Cylinder) end end
+ if name=="Deer" or name=="PolarBear" then for _,side in ipairs({-1,1}) do deco(model,"Antler",Vector3.new(.35,2.7,.35),CFrame.new(pos+Vector3.new(b.X*.36,4,side*.68)),Color3.fromRGB(221,196,148),Enum.Material.Wood,Enum.PartType.Cylinder) end end
+ if name=="MagmaDragon" then for _,side in ipairs({-1,1}) do local wing=deco(model,"Wing",Vector3.new(3,.35,4),CFrame.new(pos+Vector3.new(0,3.6,side*2.3)),Color3.fromRGB(156,48,29),Enum.Material.Neon); wing.Transparency=.2 end end
+ if name=="VolcanicTitan" then deco(model,"Crown",Vector3.new(3,1.2,3),CFrame.new(pos+Vector3.new(0,5,0)),Color3.fromRGB(255,132,28),Enum.Material.Neon,Enum.PartType.Ball) end
+ local bill=Instance.new("BillboardGui"); bill.Name="AnimalInfo"; bill.Size=UDim2.fromOffset(150,42); bill.StudsOffset=Vector3.new(0,5.5,0); bill.AlwaysOnTop=true; bill.Parent=body
+ local text=Instance.new("TextLabel"); text.Name="Label"; text.Size=UDim2.fromScale(1,1); text.BackgroundColor3=Color3.fromRGB(24,31,34); text.BackgroundTransparency=.2; text.TextColor3=Color3.new(1,1,1); text.Font=Enum.Font.GothamBold; text.TextScaled=true; text.Text=name.."  •  "..def.rarity.."\nHP "..def.hp; text.Parent=bill
+ local corner=Instance.new("UICorner"); corner.CornerRadius=UDim.new(0,8); corner.Parent=text
+ model.Parent=ANIMAL_FOLDER; return model
+end
+local function spawnAnimal(name)
+ local def=ANIMALS[name]; if not def then return end; local c=ZONES[def.zone].center
+ local pos=Vector3.new(c.X+math.random(-55,55),1,c.Z+math.random(-55,55)); local m=makeAnimal(name,def.zone,pos)
+ task.spawn(function()
+  while m.Parent do
+   task.wait(math.random(3,7)); if not m.Parent then break end
+   local from=m:GetPivot(); local dest=from*CFrame.new(math.random(-18,18),0,math.random(-18,18))*CFrame.Angles(0,math.rad(math.random(-100,100)),0)
+   for s=1,20 do if not m.Parent then break end; m:PivotTo(from:Lerp(dest,s/20)*CFrame.new(0,math.sin(s/20*math.pi)*.18,0)); task.wait(.05) end
+  end
+ end)
+ return m
+end
+for name in pairs(ANIMALS) do for i=1,2 do spawnAnimal(name) end end
+-- base display representation
+local function refreshBase(p)
+ local plot; for _,q in ipairs(PLOTS) do if q.owner==p then plot=q end end; if not plot then return end
+ for _,m in ipairs(plot.visuals) do if m and m.Parent then m:Destroy() end end; plot.visuals={}
+ local d=DATA[p]; if not d then return end
+ for i,name in ipairs(d.Placed) do local pad=plot.pads[i]; if pad then local def=ANIMALS[name]; if def then local mdl=makeAnimal(name,def.zone,pad.Position+Vector3.new(0,1,0)); mdl.Name="Display_"..name; mdl:SetAttribute("Animal",false); table.insert(plot.visuals,mdl) end end end
+end
+local function weaponTool(p)
+ local d=DATA[p]; if not d then return end
+ local bp=p:FindFirstChildOfClass("Backpack"); if not bp then return end
+ for _,v in ipairs(bp:GetChildren()) do if v:IsA("Tool") and v:GetAttribute("HuntWeapon") then v:Destroy() end end
+ local ch=p.Character; if ch then for _,v in ipairs(ch:GetChildren()) do if v:IsA("Tool") and v:GetAttribute("HuntWeapon") then v:Destroy() end end end
+ local def; for _,w in ipairs(WEAPONS) do if w.name==d.Equipped then def=w end end; if not def then return end
+ local tool=Instance.new("Tool"); tool.Name=def.name; tool.RequiresHandle=true; tool.CanBeDropped=false; tool:SetAttribute("HuntWeapon",true)
+ local h=Instance.new("Part"); h.Name="Handle"; h.Size=Vector3.new(1,1,3); h.Color=def.color; h.Material=Enum.Material.Metal; h.CanCollide=false; h.Parent=tool
+ local barrel=Instance.new("Part"); barrel.Name="Barrel"; barrel.Size=Vector3.new(.45,.45,2.1); barrel.Color=Color3.fromRGB(42,47,53); barrel.Material=Enum.Material.Metal; barrel.CanCollide=false; barrel.Massless=true; barrel.Parent=tool
+ local weld=Instance.new("WeldConstraint"); weld.Part0=h; weld.Part1=barrel; weld.Parent=h; barrel.CFrame=h.CFrame*CFrame.new(0,0,-1.7)
+ tool.Parent=bp
+end
+Players.PlayerAdded:Connect(function(p)
+ load(p); claimPlot(p); p.CharacterAdded:Connect(function() task.wait(.7); weaponTool(p); local plot; for _,q in ipairs(PLOTS) do if q.owner==p then plot=q end end; if plot then local pad=plot.pads[1]; local root=p.Character and p.Character:FindFirstChild("HumanoidRootPart"); if root and #Players:GetPlayers()&lt;=4 then root.CFrame=CFrame.new(pad.Position+Vector3.new(0,4,13)) end end end)
+ task.delay(2,function() if p.Parent then refreshBase(p); update(p) end end)
+end)
+Players.PlayerRemoving:Connect(function(p) save(p); DATA[p]=nil; for _,q in ipairs(PLOTS) do if q.owner==p then q.owner=nil; q.label.Text="OPEN BASE"; for _,v in ipairs(q.visuals) do if v then v:Destroy() end end; q.visuals={} end end end)
+for _,p in ipairs(Players:GetPlayers()) do task.spawn(function() load(p); claimPlot(p) end) end
+
+task.spawn(function()
+ while true do task.wait(30); for _,p in ipairs(Players:GetPlayers()) do save(p) end end
+end)
+game:BindToClose(function() for _,p in ipairs(Players:GetPlayers()) do save(p) end; task.wait(2) end)
+-- passive base income accumulates until collected
+ task.spawn(function()
+  while true do task.wait(10); for p,d in pairs(DATA) do local rate=0; for _,n in ipairs(d.Placed) do if ANIMALS[n] then rate+=ANIMALS[n].income end end; if rate&gt;0 then d.Pending+=rate*10; update(p) end end end
+ end)
+local cooldown={}
+Action.OnServerEvent:Connect(function(p,op,arg)
+ local d=DATA[p]; if not d then return end
+ if op=="request" then update(p)
+ elseif op=="shoot" then
+  if typeof(arg)~="Instance" or not arg:IsA("Model") or arg.Parent~=ANIMAL_FOLDER or not arg:GetAttribute("Animal") then return end
+  local ch=p.Character; local root=ch and ch:FindFirstChild("HumanoidRootPart"); if not root or not arg.PrimaryPart or (root.Position-arg.PrimaryPart.Position).Magnitude&gt;220 then return end
+  local now=os.clock(); if cooldown[p] and now-cooldown[p]&lt;.35 then return end; cooldown[p]=now
+  local w; for _,x in ipairs(WEAPONS) do if x.name==d.Equipped then w=x end end; w=w or WEAPONS[1]
+  local damage=w.damage*(1+d.DamageLevel*.22)*(1+d.Rebirth*.12); local hp=math.max(0,(arg:GetAttribute("Health") or 1)-damage); arg:SetAttribute("Health",hp)
+  local label=arg.PrimaryPart:FindFirstChild("AnimalInfo"); if label and label:FindFirstChild("TextLabel") then label.TextLabel.Text=arg:GetAttribute("Species").."\nHP "..math.ceil(hp) end
+  local hit=Instance.new("Part"); hit.Shape=Enum.PartType.Ball; hit.Size=Vector3.new(1.4,1.4,1.4); hit.Material=Enum.Material.Neon; hit.Color=Color3.fromRGB(255,210,89); hit.Anchored=true; hit.CanCollide=false; hit.CFrame=arg.PrimaryPart.CFrame; hit.Parent=WORLD; Debris:AddItem(hit,.18)
+  if hp&lt;=0 and arg.Parent then
+   local name=arg:GetAttribute("Species"); local def=ANIMALS[name]; d.Animals[name]=(d.Animals[name] or 0)+1; d.Index[name]=true; d.Kills+=1
+   notice(p,"Captured "..name.."! Added to your collection."); arg:Destroy(); task.delay(9,function() if ANIMALS[name] then spawnAnimal(name) end end); update(p)
+  end
+ elseif op=="buyWeapon" then
+  local wanted=tostring(arg); for _,w in ipairs(WEAPONS) do if w.name==wanted then if d.Weapons[w.name] then d.Equipped=w.name; weaponTool(p); notice(p,"Equipped "..w.name) elseif d.Coins&gt;=w.price then d.Coins-=w.price; d.Weapons[w.name]=true; d.Equipped=w.name; weaponTool(p); notice(p,"Purchased "..w.name) else notice(p,"Not enough coins.") end; update(p); return end end
+ elseif op=="upgrade" then local cost=250*(2^d.DamageLevel); if d.Coins&gt;=cost and d.DamageLevel&lt;20 then d.Coins-=cost; d.DamageLevel+=1; notice(p,"Damage upgraded to level "..d.DamageLevel) else notice(p,"Need "..cost.." coins for the next damage upgrade.") end; update(p)
+ elseif op=="place" then
+  local name=tostring(arg); local owned=d.Animals[name] or 0; local used=0; for _,n in ipairs(d.Placed) do if n==name then used+=1 end end
+  local slots=math.min(4,2+math.floor(d.Rebirth/2)); if owned&gt;used and #d.Placed&lt;slots and ANIMALS[name] then table.insert(d.Placed,name); refreshBase(p); notice(p,name.." placed in your base.") else notice(p,"No free copy or display slot available.") end; update(p)
+ elseif op=="remove" then local i=tonumber(arg) or #d.Placed; if d.Placed[i] then table.remove(d.Placed,i); refreshBase(p); notice(p,"Animal returned to your collection.") end; update(p)
+ elseif op=="collect" then if d.Pending&gt;0 then local amt=math.floor(d.Pending); d.Pending=0; d.Coins+=amt; notice(p,"Collected "..amt.." coins from your animals!") else notice(p,"Your base has no earnings yet.") end; update(p)
+ elseif op=="zone" then
+  local zn=tostring(arg); local costs={Forest=0,Desert=1200,Snow=6000,Volcano=22000}; if ZONES[zn] then if d.OpenZones[zn] then local c=ZONES[zn].center; local root=p.Character and p.Character:FindFirstChild("HumanoidRootPart"); if root then root.CFrame=CFrame.new(c.X,5,c.Z) end else local cost=costs[zn]; if d.Coins&gt;=cost then d.Coins-=cost; d.OpenZones[zn]=true; notice(p,zn.." Zone unlocked!"); local c=ZONES[zn].center; local root=p.Character and p.Character:FindFirstChild("HumanoidRootPart"); if root then root.CFrame=CFrame.new(c.X,5,c.Z) end else notice(p,"Unlock costs "..cost.." coins.") end end end; update(p)
+ elseif op=="rebirth" then if d.Coins&gt;=50000 and d.Kills&gt;=10 then d.Coins=250; d.DamageLevel=0; d.Rebirth+=1; notice(p,"Rebirth complete! Permanent income and damage bonus increased."); update(p) else notice(p,"Rebirth needs 50,000 coins and 10 captures."); end
+ elseif op=="daily" then if os.time()-d.Daily&gt;=86400 then d.Daily=os.time(); d.Coins+=500; d.Gems+=5; notice(p,"Daily reward: 500 coins + 5 gems!") else notice(p,"Daily reward already claimed. Come back tomorrow.") end; update(p)
+ elseif op=="quest" then if d.Kills&gt;=10 and not d.QuestClaimed then d.QuestClaimed=true; d.Coins+=1000; notice(p,"Quest completed: 10 captures. +1,000 coins!") else notice(p,"Quest: capture 10 animals. Progress "..math.min(d.Kills,10).."/10") end; update(p)
+ end
+end)
+</ProtectedString>
+      </Properties>
+    </Item>
+  </Item>
+  <Item class="ServerStorage" referent="RBX9">
+    <Properties>
+      <string name="Name">ServerStorage</string>
+    </Properties>
+  </Item>
+  <Item class="StarterGui" referent="RBX10">
+    <Properties>
+      <string name="Name">StarterGui</string>
+    </Properties>
+  </Item>
+  <Item class="StarterPack" referent="RBX11">
+    <Properties>
+      <string name="Name">StarterPack</string>
+    </Properties>
+  </Item>
+  <Item class="StarterPlayer" referent="RBX12">
+    <Properties>
+      <string name="Name">StarterPlayer</string>
+    </Properties>
+    <Item class="StarterPlayerScripts" referent="RBX13">
+      <Properties>
+        <string name="Name">StarterPlayerScripts</string>
+      </Properties>
+      <Item class="LocalScript" referent="RBX14">
+        <Properties>
+          <string name="Name">AnimalHuntClient</string>
+          <bool name="Disabled">false</bool>
+          <ProtectedString name="Source">-- Responsive Animal Hunting Simulator GUI and client-side shot effects
+local Players=game:GetService("Players")
+local ReplicatedStorage=game:GetService("ReplicatedStorage")
+local TweenService=game:GetService("TweenService")
+local Debris=game:GetService("Debris")
+local UserInputService=game:GetService("UserInputService")
+local player=Players.LocalPlayer
+local rem=ReplicatedStorage:WaitForChild("AnimalHuntRemotes")
+local Action=rem:WaitForChild("Action"); local Update=rem:WaitForChild("Update"); local Notice=rem:WaitForChild("Notice")
+local state={Coins=0,Gems=0,Animals={},Placed={},Weapons={},OpenZones={},Index={},Kills=0,Pending=0,Equipped="Trailblazer"}
+local gui=Instance.new("ScreenGui"); gui.Name="AnimalHuntHUD"; gui.ResetOnSpawn=false; gui.IgnoreGuiInset=false; gui.Parent=player:WaitForChild("PlayerGui")
+local function corner(obj,r) local c=Instance.new("UICorner"); c.CornerRadius=UDim.new(0,r or 10); c.Parent=obj end
+local function stroke(obj,color,thick) local s=Instance.new("UIStroke"); s.Color=color or Color3.fromRGB(255,255,255); s.Thickness=thick or 1.5; s.Transparency=.25; s.Parent=obj end
+local function text(parent,txt,size,color,bold)
+ local t=Instance.new("TextLabel"); t.BackgroundTransparency=1; t.Text=txt; t.TextColor3=color or Color3.new(1,1,1); t.Font=bold and Enum.Font.GothamBold or Enum.Font.Gotham; t.TextSize=size or 16; t.TextWrapped=true; t.Parent=parent; return t
+end
+local top=Instance.new("Frame"); top.Name="TopBar"; top.Size=UDim2.new(0,380,0,54); top.Position=UDim2.new(.5,-190,0,12); top.BackgroundColor3=Color3.fromRGB(28,39,42); top.BackgroundTransparency=.08; top.Parent=gui; corner(top,16); stroke(top,Color3.fromRGB(139,210,140),2)
+local wallet=text(top,"",17,Color3.fromRGB(255,240,164),true); wallet.Size=UDim2.fromScale(1,1)
+local hint=Instance.new("TextLabel"); hint.Size=UDim2.new(0,300,0,30); hint.Position=UDim2.new(.5,-150,0,72); hint.BackgroundColor3=Color3.fromRGB(24,31,34); hint.BackgroundTransparency=.25; hint.Text="Equip your tool and tap/click a wild animal to capture it"; hint.TextColor3=Color3.new(1,1,1); hint.TextSize=13; hint.Font=Enum.Font.GothamMedium; hint.Parent=gui; corner(hint,10)
+local bar=Instance.new("Frame"); bar.Name="MenuBar"; bar.AnchorPoint=Vector2.new(.5,1); bar.Position=UDim2.new(.5,0,1,-12); bar.Size=UDim2.new(.96,0,0,52); bar.BackgroundColor3=Color3.fromRGB(27,37,40); bar.BackgroundTransparency=.08; bar.Parent=gui; corner(bar,15); stroke(bar,Color3.fromRGB(144,201,143),1.5)
+local layout=Instance.new("UIListLayout"); layout.FillDirection=Enum.FillDirection.Horizontal; layout.HorizontalAlignment=Enum.HorizontalAlignment.Center; layout.VerticalAlignment=Enum.VerticalAlignment.Center; layout.Padding=UDim.new(0,4); layout.Parent=bar
+local panel=Instance.new("Frame"); panel.Name="MenuPanel"; panel.AnchorPoint=Vector2.new(.5,.5); panel.Position=UDim2.fromScale(.5,.52); panel.Size=UDim2.new(.88,0,.64,0); panel.BackgroundColor3=Color3.fromRGB(31,43,46); panel.Visible=false; panel.Parent=gui; corner(panel,18); stroke(panel,Color3.fromRGB(231,202,119),2)
+local title=text(panel,"",22,Color3.fromRGB(255,226,149),true); title.Position=UDim2.new(0,14,0,7); title.Size=UDim2.new(1,-70,0,38); title.TextXAlignment=Enum.TextXAlignment.Left
+local close=Instance.new("TextButton"); close.Size=UDim2.new(0,40,0,36); close.Position=UDim2.new(1,-50,0,8); close.Text="✕"; close.TextSize=20; close.TextColor3=Color3.new(1,1,1); close.BackgroundColor3=Color3.fromRGB(157,71,60); close.Parent=panel; corner(close,10); close.Activated:Connect(function() panel.Visible=false end)
+local scroll=Instance.new("ScrollingFrame"); scroll.Name="Content"; scroll.Position=UDim2.new(0,12,0,52); scroll.Size=UDim2.new(1,-24,1,-64); scroll.BackgroundTransparency=1; scroll.BorderSizePixel=0; scroll.ScrollBarThickness=5; scroll.CanvasSize=UDim2.new(); scroll.AutomaticCanvasSize=Enum.AutomaticSize.Y; scroll.Parent=panel
+local sl=Instance.new("UIListLayout"); sl.Padding=UDim.new(0,7); sl.SortOrder=Enum.SortOrder.LayoutOrder; sl.Parent=scroll
+local function button(parent,label,color,callback)
+ local b=Instance.new("TextButton"); b.Text=label; b.TextColor3=Color3.new(1,1,1); b.Font=Enum.Font.GothamBold; b.TextSize=14; b.TextWrapped=true; b.BackgroundColor3=color or Color3.fromRGB(73,128,91); b.Size=UDim2.new(1,-4,0,42); b.AutoButtonColor=false; b.Parent=parent; corner(b,10); stroke(b,Color3.fromRGB(255,255,255),1)
+ b.Activated:Connect(function() local old=b.Size; TweenService:Create(b,TweenInfo.new(.09),{Size=UDim2.new(1,-12,0,38)}):Play(); task.delay(.1,function() if b.Parent then TweenService:Create(b,TweenInfo.new(.1),{Size=old}):Play() end end); callback() end); return b
+end
+local menuButtons={"Collection","Base","Shop","Upgrades","Zones","Index","Quests","Daily","Rebirth"}
+local function showNotice(msg)
+ local n=Instance.new("TextLabel"); n.AnchorPoint=Vector2.new(.5,0); n.Position=UDim2.new(.5,0,0,115); n.Size=UDim2.new(.8,0,0,42); n.BackgroundColor3=Color3.fromRGB(38,99,68); n.TextColor3=Color3.new(1,1,1); n.Text=msg; n.TextSize=15; n.Font=Enum.Font.GothamBold; n.TextWrapped=true; n.Parent=gui; corner(n,12); stroke(n,Color3.fromRGB(194,245,166),1.5); n.BackgroundTransparency=.05; task.delay(2.6,function() if n.Parent then TweenService:Create(n,TweenInfo.new(.3),{TextTransparency=1,BackgroundTransparency=1}):Play(); Debris:AddItem(n,.35) end end)
+end
+local function row(label)
+ local l=Instance.new("TextLabel"); l.Size=UDim2.new(1,-5,0,40); l.BackgroundColor3=Color3.fromRGB(48,62,64); l.TextColor3=Color3.fromRGB(244,242,227); l.Font=Enum.Font.GothamMedium; l.TextSize=14; l.TextWrapped=true; l.Text=label; l.Parent=scroll; corner(l,8); return l
+end
+local function clear() for _,v in ipairs(scroll:GetChildren()) do if v~=sl then v:Destroy() end end end
+local function render(name)
+ panel.Visible=true; panel.Size=UDim2.new(.88,0,.64,0); title.Text=name; clear()
+ if name=="Collection" then
+  row("Your captured animals — place spare copies in your base to earn coins.")
+  local any=false; for n,c in pairs(state.Animals or {}) do if c&gt;0 then any=true; local used=0; for _,v in ipairs(state.Placed or {}) do if v==n then used+=1 end end; button(scroll,n.."  ×"..c.."   | available: "..math.max(0,c-used),Color3.fromRGB(66,119,87),function() Action:FireServer("place",n) end) end end; if not any then row("No animals yet. Hunt in the Forest Zone!") end
+ elseif name=="Base" then
+  row("Base income: +coins accumulate every 10 seconds. Collect when ready.")
+  button(scroll,"Collect "..tostring(math.floor(state.Pending or 0)).." coins",Color3.fromRGB(207,155,48),function() Action:FireServer("collect") end)
+  row("Display slots: "..#(state.Placed or {}).." / 4 — remove the latest display to return it to collection.")
+  if #(state.Placed or {})&gt;0 then button(scroll,"Remove last displayed animal",Color3.fromRGB(163,93,71),function() Action:FireServer("remove",#state.Placed) end) end
+  for i,n in ipairs(state.Placed or {}) do row("Slot "..i..": "..n) end
+ elseif name=="Shop" then
+  row("Buy better hunting tools with coins. Damage grows with each tier.")
+  local ws={{"Trailblazer","Common",0,18},{"Ranger","Uncommon",300,38},{"Longshot","Rare",1250,88},{"Ember Rifle","Epic",4500,190},{"Celestial","Legendary",16000,430}}
+  for _,w in ipairs(ws) do local own=state.Weapons and state.Weapons[w[1]]; button(scroll,(own and "EQUIP  " or "BUY  ")..w[1].."  •  "..w[2].."  •  "..w[4].." dmg  •  "..w[3].." coins",own and Color3.fromRGB(53,119,145) or Color3.fromRGB(81,121,86),function() Action:FireServer("buyWeapon",w[1]) end) end
+ elseif name=="Upgrades" then
+  local cost=250*(2^(state.DamageLevel or 0)); row("Damage level "..tostring(state.DamageLevel or 0).." — each level adds 22% weapon damage."); button(scroll,"Upgrade Damage — "..cost.." coins",Color3.fromRGB(163,105,54),function() Action:FireServer("upgrade") end)
+  row("Other upgrade categories (reload, range, critical chance) are reserved for future tuning.")
+ elseif name=="Zones" then
+  row("Explore four handcrafted biomes. Zone access persists after unlocking.")
+  for _,z in ipairs({{"Forest",0},{"Desert",1200},{"Snow",6000},{"Volcano",22000}}) do local open=state.OpenZones and state.OpenZones[z[1]]; button(scroll,(open and "TRAVEL  " or "UNLOCK  ")..z[1].." Zone"..(open and "" or "  •  "..z[2].." coins"),open and Color3.fromRGB(61,137,104) or Color3.fromRGB(116,91,63),function() Action:FireServer("zone",z[1]) end) end
+ elseif name=="Index" then
+  local all={"Rabbit","Deer","Fox","DesertFox","Camel","Scorpion","SnowRabbit","ArcticFox","PolarBear","FireLizard","MagmaDragon","VolcanicTitan"}; local got=0; for _,n in ipairs(all) do if state.Index and state.Index[n] then got+=1 end end; row("Animal Index: "..got.." / "..#all.." discovered"); for _,n in ipairs(all) do local captured=state.Index and state.Index[n]; row((captured and "✓  " or "🔒  ")..(captured and n or "???").."  •  "..(captured and tostring((state.Animals or {})[n] or 0).." owned" or "Undiscovered")) end
+ elseif name=="Quests" then
+  row("Daily hunt quest: capture 10 animals. Progress "..math.min(state.Kills or 0,10).." / 10"); button(scroll,"Claim quest reward (+1,000 coins when complete)",Color3.fromRGB(127,97,177),function() Action:FireServer("quest") end)
+  row("Tip: stronger weapons make rare and legendary captures faster.")
+ elseif name=="Daily" then row("Daily login reward: 500 coins and 5 gems. Claim once every 24 hours."); button(scroll,"Claim daily reward",Color3.fromRGB(180,138,53),function() Action:FireServer("daily") end)
+ elseif name=="Rebirth" then
+  row("Requirement: 50,000 coins + 10 animal captures. Rebirth resets coins and damage upgrades; animals stay.")
+  row("Reward: permanent damage and income multiplier; additional base slots every 2 rebirths.")
+  button(scroll,"Rebirth now",Color3.fromRGB(151,79,131),function() Action:FireServer("rebirth") end)
+ end
+end
+for _,name in ipairs(menuButtons) do local b=Instance.new("TextButton"); b.Name=name; b.Text=name; b.TextColor3=Color3.new(1,1,1); b.Font=Enum.Font.GothamBold; b.TextSize=12; b.BackgroundColor3=Color3.fromRGB(66,105,81); b.Size=UDim2.new(1/#menuButtons,-6,0,40); b.Parent=bar; corner(b,10); b.Activated:Connect(function() render(name) end) end
+Update.OnClientEvent:Connect(function(s) if type(s)=="table" then state=s; wallet.Text="🪙  "..tostring(math.floor(s.Coins or 0)).."        💎  "..tostring(s.Gems or 0).."        ⚡ "..tostring(s.Equipped or "Trailblazer"); if panel.Visible then render(title.Text) end end end)
+Notice.OnClientEvent:Connect(showNotice)
+local mouse=player:GetMouse(); local last=0
+mouse.Button1Down:Connect(function()
+ if panel.Visible or UserInputService:GetFocusedTextBox() then return end
+ local now=os.clock(); if now-last&lt;.25 then return end; last=now
+ local target=mouse.Target; if not target then return end
+ local model=target:FindFirstAncestorOfClass("Model"); if model and model:GetAttribute("Animal") then
+  Action:FireServer("shoot",model)
+  local camera=workspace.CurrentCamera; if camera then local origin=camera.CFrame.Position; local finish=model:GetPivot().Position; local dist=(finish-origin).Magnitude; local tracer=Instance.new("Part"); tracer.Name="ShotTracer"; tracer.Anchored=true; tracer.CanCollide=false; tracer.Material=Enum.Material.Neon; tracer.Color=Color3.fromRGB(255,220,112); tracer.Size=Vector3.new(.12,.12,dist); tracer.CFrame=CFrame.lookAt(origin,finish)*CFrame.new(0,0,-dist/2); tracer.Parent=workspace; Debris:AddItem(tracer,.08) end
+ end
+end)
+Action:FireServer("request")
+</ProtectedString>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="Teams" referent="RBX15">
+    <Properties>
+      <string name="Name">Teams</string>
+    </Properties>
+  </Item>
+  <Item class="SoundService" referent="RBX16">
+    <Properties>
+      <string name="Name">SoundService</string>
+    </Properties>
+  </Item>
+  <Item class="TextChatService" referent="RBX17">
+    <Properties>
+      <string name="Name">TextChatService</string>
+    </Properties>
+  </Item>
+</roblox>
