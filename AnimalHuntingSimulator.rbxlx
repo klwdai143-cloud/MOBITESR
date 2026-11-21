@@ -1,0 +1,1108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4"><Meta name="ExplicitAutoJoints">true</Meta><Item class="Workspace" referent="RBX2"><Properties><string name="Name">Workspace</string><bool name="StreamingEnabled">true</bool><float name="StreamingTargetRadius">400</float></Properties><Item class="Terrain" referent="RBX1"><Properties><string name="Name">Terrain</string><bool name="Decoration">true</bool></Properties></Item></Item><Item class="Lighting" referent="RBX3"><Properties><string name="Name">Lighting</string><token name="Technology">3</token></Properties></Item><Item class="ReplicatedStorage" referent="RBX7"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="ModuleScript" referent="RBX4"><Properties><string name="Name">Config</string><ProtectedString name="Source"><![CDATA[local C={}
+local function H(h) return Color3.fromHex(h) end
+C.Rar={"Common","Uncommon","Rare","Epic","Legendary","Mythic","Exotic","Secret","Celestial","Divine"}
+C.RarCol={H"#9aa0ab",H"#46c846",H"#3282ff",H"#a046ff",H"#ffa01e",H"#eb323c",H"#1edce6",H"#e63ce6",H"#3c5aff",H"#ffd73c"}
+C.HpMul={1,2,4,9,22,60,120,200,300,400}
+C.IncMul={2,5,12,30,80,200,400,800,1600,3000}
+C.ZR=115
+C.Cap=11
+C.Snd={ -- {id, pitch, volume} ; غيّر الأرقام هنا بأي Asset ID تحبه
+	shoot={"rbxasset://sounds/bass.wav",3,.5}, hit={"rbxasset://sounds/uuhhh.mp3",1.6,.4},
+	caught={"rbxasset://sounds/electronicpingshort.wav",1.4,.7}, coin={"rbxasset://sounds/electronicpingshort.wav",2,.5},
+	ui={"rbxasset://sounds/button.wav",1,.4}, reload={"rbxasset://sounds/switch.wav",1,.6},
+	unlock={"rbxasset://sounds/bass.wav",.6,.9}, place={"rbxasset://sounds/clickfast.wav",1,.7}, Music=""}
+C.Zones={
+{Name="Forest",Cost=0,Center=Vector3.new(-330,0,-120),Hp=1,Inc=1,Col=H"#2fbf4a",Emoji="🌲",Animals={
+{"Rabbit",1,"#f4f4f4",.8},{"Deer",2,"#a86a3a",1.4},{"Fox",2,"#e8742a",1},{"Wolf",3,"#8a8f98",1.3},{"Boar",3,"#6b4a35",1.2},{"Bear",4,"#6b3f22",1.9},{"Tiger",4,"#e8962c",1.7},{"Elephant",5,"#8e949c",3},{"Gorilla",5,"#3e4250",2},{"Ancient Stag",6,"#7dff9a",1.8},{"Forest Dragon",6,"#2ea04d",2.4},{"Emerald Spirit",7,"#37e6a0",1.6},{"Tree Titan",10,"#4b7a35",3.4}}},
+{Name="Desert",Cost=5000,Center=Vector3.new(-130,0,-330),Hp=2.5,Inc=4,Col=H"#e8a030",Emoji="🌵",Animals={
+{"Fennec Fox",1,"#e6c79a",.8},{"Sand Snake",2,"#d8b04a",.7},{"Scorpion",2,"#2a2a2e",.8},{"Camel",3,"#c9a15a",2.2},{"Coyote",3,"#b98a5e",1.1},{"Ostrich",4,"#3a3340",1.8},{"Sand Golem",4,"#b8955a",2.4},{"Dune Shark",5,"#d5a85a",2},{"Sand Serpent",5,"#c4902f",1.6},{"Pharaoh Beast",6,"#3b6fd8",2.2},{"Sphinx",6,"#e0c070",2.6},{"Mirage Beast",8,"#e060e0",2},{"Golden Anubis",10,"#f0c030",2.6}}},
+{Name="Snow",Cost=50000,Center=Vector3.new(130,0,-330),Hp=6,Inc=16,Col=H"#5cc8ff",Emoji="❄️",Animals={
+{"Snow Rabbit",1,"#ffffff",.8},{"Arctic Fox",2,"#eaf2ff",1},{"Snow Leopard",3,"#cfd8e8",1.5},{"Polar Bear",3,"#f2f6ff",2.2},{"Ice Wolf",3,"#a8c4ee",1.3},{"Ice Penguin",4,"#2a3040",.9},{"Frost Bear",4,"#8fd8ff",2.1},{"Yeti",5,"#f0f4ff",2.8},{"Ice Dragon",6,"#4aa8ff",2.4},{"Frost Giant",6,"#6fb8ff",3},{"Glacier Phoenix",6,"#9fe6ff",1.8},{"Aurora Wolf",9,"#50ffd0",1.8},{"Frost Titan",10,"#58d0ff",3.4}}},
+{Name="Volcano",Cost=500000,Center=Vector3.new(330,0,-120),Hp=15,Inc=64,Col=H"#ff5a1e",Emoji="🌋",Animals={
+{"Lava Bat",1,"#3a2a38",.7},{"Fire Lizard",2,"#ff6a2a",.9},{"Red Fox",2,"#e0401e",1},{"Molten Boar",3,"#5a2a20",1.3},{"Rock Golem",3,"#8a6a4a",2.4},{"Raptor",4,"#c84a2a",1.5},{"Fire Tiger",4,"#ff8a1e",1.8},{"Magma Dragon",5,"#e83a1a",2.6},{"Phoenix",6,"#ffb020",1.8},{"Inferno Golem",6,"#c8401e",3},{"Solar Drake",9,"#ffe060",2.2},{"Volcanic Titan",10,"#d03018",3.6}}},
+}
+C.A,C.AN={}, {}
+for zi,z in C.Zones do
+	z.Index=zi z.List={}
+	for _,r in z.Animals do
+		local a={Name=r[1],Rank=r[2],Col=H(r[3]),Size=r[4],Zone=z.Name,ZI=zi}
+		a.Hp=math.floor(20*C.HpMul[a.Rank]*z.Hp) a.Inc=math.floor(C.IncMul[a.Rank]*z.Inc)
+		table.insert(z.List,a) table.insert(C.A,a) C.AN[a.Name]=a
+	end
+end
+local WL={ -- Name,Rank,Dmg,Rate,Mag,Reload,Range,Cost,Cur,Len,Hex
+{"Pistol",1,10,2.5,12,1.2,130,0,"c",1.3,"#2b2d33"},{"Revolver",2,18,1.8,6,1.6,150,600,"c",1.5,"#3a3f3a"},
+{"Combat Shotgun",3,36,1.4,8,1.8,160,6000,"c",2.4,"#2d3f66"},{"Plasma Rifle",4,70,4.5,30,2,190,50000,"c",2.8,"#40306a"},
+{"Gold Rifle",5,130,5.5,30,2,210,400000,"c",2.8,"#d9a520"},{"Crimson Rifle",6,260,6.5,35,2.2,230,3000000,"c",3,"#7a1418"},
+{"Crystal Sniper",7,520,3,10,2.4,300,250,"g",3.4,"#206070"},{"Void Sniper",8,1000,3.5,12,2.4,320,700,"g",3.4,"#4a1a60"},
+{"Celestial Cannon",9,2000,4,15,2.6,340,1800,"g",3.6,"#1a2a80"},{"Divine Rifle",10,4200,5,20,2.6,360,5000,"g",3.6,"#e8c030"}}
+C.W,C.WN={}, {}
+for _,r in WL do local w={Name=r[1],Rank=r[2],Dmg=r[3],Rate=r[4],Mag=r[5],Reload=r[6],Range=r[7],Cost=r[8],Cur=r[9],Len=r[10],Hex=r[11]} table.insert(C.W,w) C.WN[w.Name]=w end
+C.Up={{"Damage","💪",100,"+8% damage"},{"FireRate","⚡",150,"+4% fire rate"},{"Ammo","🔫",120,"+10% ammo"},{"Reload","🔄",120,"-2% reload time"},{"Range","🎯",100,"+5% range"},{"Crit","💥",200,"+1% crit chance"},{"Speed","👟",100,"+3% walk speed"}}
+C.UpMax=50
+function C.UpCost(base,l) return math.floor(base*1.35^l) end
+C.Quests={
+{t="hunt",g=10,txt="Hunt %d animals",rc=500,rg=10},{t="unique",g=5,txt="Discover %d new animals",rc=1500,rg=15},
+{t="weapon",g=1,txt="Buy %d new weapon",rc=2000,rg=20},{t="place",g=3,txt="Place %d animals in your base",rc=3000,rg=20},
+{t="upgrade",g=5,txt="Buy %d upgrades",rc=5000,rg=25},{t="coins",g=20000,txt="Collect %d coins",rc=8000,rg=30},
+{t="zone",g=1,txt="Unlock %d new zone",rc=20000,rg=60}}
+function C.Quest(qi) local n=#C.Quests local q=C.Quests[(qi-1)%n+1] local k=1+math.floor((qi-1)/n) return q,q.g*k,q.rc*k,q.rg*k end
+C.Daily={{c=500},{g=50},{c=2500},{g=100},{c=10000},{g=200},{c=50000,g=500}}
+C.Packs={{g=10,c=5000},{g=50,c=40000},{g=250,c=250000}}
+C.Boosts={{"Coins","2x Coins (10 min)",30,"🪙"},{"Dmg","2x Damage (10 min)",30,"💥"}}
+function C.SlotCost(k) return 250*3^(k-4) end
+function C.RebCost(r) return 250000*4^r end
+return C
+]]></ProtectedString></Properties></Item><Item class="RemoteEvent" referent="RBX5"><Properties><string name="Name">Act</string></Properties></Item><Item class="RemoteEvent" referent="RBX6"><Properties><string name="Name">Push</string></Properties></Item></Item><Item class="ServerScriptService" referent="RBX13"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Folder" referent="RBX10"><Properties><string name="Name">Modules</string></Properties><Item class="ModuleScript" referent="RBX8"><Properties><string name="Name">Models</string><ProtectedString name="Source"><![CDATA[local Cfg=require(game:GetService("ReplicatedStorage"):WaitForChild("Config"))
+local M={}
+local SP=Enum.Material.SmoothPlastic
+local function mk(par,name,size,col,mat,shape)
+	local p=Instance.new("Part") p.Name=name p.Size=size p.Color=col p.Material=mat or SP
+	p.CanCollide=false p.Massless=true p.TopSurface=Enum.SurfaceType.Smooth p.BottomSurface=Enum.SurfaceType.Smooth
+	if shape then p.Shape=shape end p.Parent=par return p
+end
+local function weld(a,b,c0,c1)
+	local w=Instance.new("Weld") w.Name="W" w.Part0=a w.Part1=b w.C0=c0 w.C1=c1 or CFrame.new() w.Parent=b return w
+end
+local function emitter(par,col,size,rate)
+	local e=Instance.new("ParticleEmitter") e.Color=ColorSequence.new(col) e.LightEmission=1 e.Rate=rate
+	e.Size=NumberSequence.new(size,0) e.Lifetime=NumberRange.new(1,1.6) e.Speed=NumberRange.new(1,3)
+	e.SpreadAngle=Vector2.new(180,180) e.Transparency=NumberSequence.new(.2,1) e.Parent=par return e
+end
+function M.Animal(d,scale,label)
+	local s=d.Size*(scale or 1)
+	local col=d.Col
+	local dark=col:Lerp(Color3.new(0,0,0),.35)
+	local light=col:Lerp(Color3.new(1,1,1),.4)
+	local acc=Cfg.RarCol[d.Rank]
+	local m=Instance.new("Model") m.Name=d.Name
+	local body=mk(m,"Body",Vector3.new(.9*s,.8*s,1.8*s),col)
+	body.Anchored=true m.PrimaryPart=body
+	local function add(n,sz,off,c,mat,shape)
+		local p=mk(m,n,sz,c,mat,shape) p.CFrame=body.CFrame*off weld(body,p,off) return p
+	end
+	local tall=d.Name:find("Rabbit") or d.Name:find("Fox")
+	add("Head",Vector3.new(.7*s,.7*s,.7*s),CFrame.new(0,.4*s,-1.05*s),col)
+	add("Snout",Vector3.new(.4*s,.3*s,.45*s),CFrame.new(0,.28*s,-1.5*s),light)
+	for sx=-1,1,2 do
+		add("Ear",Vector3.new(.16*s,(tall and .6 or .28)*s,.16*s),CFrame.new(.24*s*sx,(tall and .95 or .85)*s,-1*s),dark)
+		add("Eye",Vector3.new(.14*s,.14*s,.08*s),CFrame.new(.2*s*sx,.5*s,-1.42*s),d.Rank>=4 and acc or Color3.new(0,0,0),d.Rank>=4 and Enum.Material.Neon or nil)
+		if d.Rank>=5 then add("Horn",Vector3.new(.12*s,.55*s,.12*s),CFrame.new(.2*s*sx,1.05*s,-1.05*s)*CFrame.Angles(0,0,-.3*sx),acc,Enum.Material.Neon) end
+		if d.Name:find("Dragon") or d.Name:find("Phoenix") or d.Name:find("Drake") or d.Name:find("Bat") then
+			add("Wing",Vector3.new(1.7*s,.08*s,1.1*s),CFrame.new(1.1*s*sx,.55*s,.1*s)*CFrame.Angles(0,0,.35*sx),acc:Lerp(col,.4))
+		end
+	end
+	if d.Name=="Elephant" then add("Trunk",Vector3.new(.3*s,.3*s,1.1*s),CFrame.new(0,0,-1.9*s),col) end
+	add("Tail",Vector3.new(.2*s,.2*s,.7*s),CFrame.new(0,.2*s,1.2*s)*CFrame.Angles(.5,0,0),dark)
+	local i=0
+	for _,lz in {-.65,.65} do for _,lx in {-.3,.3} do
+		i+=1
+		local leg=mk(m,"Leg"..i,Vector3.new(.26*s,.6*s,.26*s),dark)
+		local hip=CFrame.new(lx*s,-.4*s,lz*s)
+		leg.CFrame=body.CFrame*hip*CFrame.new(0,-.3*s,0)
+		weld(body,leg,hip,CFrame.new(0,.3*s,0))
+	end end
+	if d.Rank>=6 then emitter(body,acc,.5*s,label and 3 or 6) end
+	local bb=Instance.new("BillboardGui") bb.Name="Info" bb.Adornee=body bb.AlwaysOnTop=false bb.MaxDistance=label and 55 or 75
+	bb.StudsOffsetWorldSpace=Vector3.new(0,1.1*s+(label and 2.2 or 1.3),0)
+	local n=Instance.new("TextLabel") n.Name="N" n.BackgroundTransparency=1 n.Font=Enum.Font.FredokaOne n.TextScaled=true
+	n.TextColor3=acc n.TextStrokeTransparency=0 n.Text=label or (d.Name.." • "..Cfg.Rar[d.Rank]) n.Parent=bb
+	if label then bb.Size=UDim2.fromOffset(130,26) n.Size=UDim2.fromScale(1,1)
+	else
+		bb.Size=UDim2.fromOffset(130,38) n.Size=UDim2.fromScale(1,.55)
+		local bar=Instance.new("Frame") bar.Name="Bar" bar.Position=UDim2.fromScale(.1,.62) bar.Size=UDim2.fromScale(.8,.3)
+		bar.BackgroundColor3=Color3.fromRGB(30,30,40) bar.BorderSizePixel=0 bar.Parent=bb
+		local f=Instance.new("Frame") f.Name="Fill" f.Size=UDim2.fromScale(1,1) f.BackgroundColor3=Color3.fromRGB(80,220,80) f.BorderSizePixel=0 f.Parent=bar
+	end
+	bb.Parent=body
+	return m
+end
+function M.Weapon(w)
+	local t=Instance.new("Tool") t.Name=w.Name t.CanBeDropped=false t.RequiresHandle=true t.ToolTip=w.Name
+	local base=Color3.fromHex(w.Hex) local acc=Cfg.RarCol[w.Rank] local L=w.Len
+	local dk=Color3.fromRGB(32,32,38)
+	local h=mk(t,"Handle",Vector3.new(.32,.9,.45),dk) h.Massless=false
+	local function add(n,sz,off,c,mat)
+		local p=mk(t,n,sz,c,mat) p.CFrame=h.CFrame*off weld(h,p,off) return p
+	end
+	local body=add("Body",Vector3.new(.5,.55,L),CFrame.new(0,.6,-L/2+.2),base)
+	add("Barrel",Vector3.new(.2,.2,L*.5),CFrame.new(0,.62,-1.25*L+.2),dk)
+	add("Mag",Vector3.new(.3,.85,.4),CFrame.new(0,.1,-L*.45),dk)
+	if L>2 then add("Stock",Vector3.new(.35,.6,.9),CFrame.new(0,.55,.9),base:Lerp(Color3.new(0,0,0),.3)) end
+	if w.Rank>=4 then add("Scope",Vector3.new(.25,.25,.9),CFrame.new(0,1.05,-L*.4),dk) add("Lens",Vector3.new(.2,.2,.1),CFrame.new(0,1.05,-L*.4-.5),acc,Enum.Material.Neon) end
+	if w.Rank>=2 then local g=add("Glow",Vector3.new(.54,.12,L*.7),CFrame.new(0,.92,-L/2),acc,Enum.Material.Neon) g.Transparency=.1 end
+	if w.Rank>=7 then for sx=-1,1,2 do add("Rail",Vector3.new(.04,.3,L*.8),CFrame.new(.27*sx,.6,-L/2),acc,Enum.Material.Neon) end end
+	if w.Rank>=10 then
+		for sx=-1,1,2 do for k=0,1 do
+			local wg=add("Wing",Vector3.new(1.3-k*.3,.06,.55),CFrame.new(.8*sx,.95+k*.3,.3+k*.1)*CFrame.Angles(0,0,.5*sx),Color3.fromRGB(255,245,200),Enum.Material.Neon) wg.Transparency=.15
+		end end
+		local l=Instance.new("PointLight") l.Color=acc l.Range=12 l.Parent=body
+	end
+	if w.Rank>=5 then emitter(body,acc,.25,3+w.Rank) end
+	local a=Instance.new("Attachment") a.Name="Muzzle" a.Position=Vector3.new(0,.02,-L) a.Parent=body
+	t:SetAttribute("W",w.Name)
+	return t
+end
+return M
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX9"><Properties><string name="Name">Animals</string><ProtectedString name="Source"><![CDATA[local Players=game:GetService("Players")
+local RS=game:GetService("ReplicatedStorage")
+local RunS=game:GetService("RunService")
+local Cfg=require(RS:WaitForChild("Config"))
+local Models=require(script.Parent:WaitForChild("Models"))
+local A={}
+local folder=Instance.new("Folder") folder.Name="Animals" folder.Parent=workspace
+A.Folder=folder
+local live,counts={}, {}
+local rp=RaycastParams.new() rp.FilterType=Enum.RaycastFilterType.Include
+local WT={30,20,12,7,4,2,.8,.4,.2,.3}
+local function ground(x,z) rp.FilterDescendantsInstances={workspace.Terrain} local r=workspace:Raycast(Vector3.new(x,400,z),Vector3.new(0,-800,0),rp) return r and r.Position.Y end
+local function pick(z) local tot=0 for _,a in z.List do tot+=WT[a.Rank] end local r=math.random()*tot for _,a in z.List do r-=WT[a.Rank] if r<=0 then return a end end return z.List[1] end
+local function clamp(z,p) local o=Vector3.new(p.X-z.Center.X,0,p.Z-z.Center.Z) if o.Magnitude>Cfg.ZR-15 then o=o.Unit*(Cfg.ZR-15) end return Vector3.new(z.Center.X+o.X,0,z.Center.Z+o.Z) end
+local function nearest(pos) local b,bd=nil,1e9 for _,p in Players:GetPlayers() do local c=p.Character local r=c and c:FindFirstChild("HumanoidRootPart") if r then local d=(r.Position-pos).Magnitude if d<bd then b,bd=r,d end end end return b,bd end
+local function setState(a,s) if a.state~=s then a.state=s a.m:SetAttribute("State",s) end end
+local function spawn(zi)
+	local z=Cfg.Zones[zi] local d=pick(z)
+	for _=1,8 do
+		local ang=math.random()*6.283 local r=math.sqrt(math.random())*(Cfg.ZR-20)
+		local x,zz=z.Center.X+math.cos(ang)*r,z.Center.Z+math.sin(ang)*r
+		local y=ground(x,zz)
+		if y then
+			local m=Models.Animal(d)
+			m:SetAttribute("Hp",d.Hp) m:SetAttribute("MaxHp",d.Hp) m:SetAttribute("Zone",z.Name) m:SetAttribute("Rank",d.Rank) m:SetAttribute("State","Idle")
+			local body=m.PrimaryPart
+			body.CFrame=CFrame.new(x,y+d.Size,zz)*CFrame.Angles(0,math.random()*6.28,0)
+			m.Parent=folder
+			live[m]={m=m,body=body,d=d,zi=zi,home=Vector3.new(x,0,zz),pos=Vector3.new(x,y,zz),fwd=body.CFrame.LookVector,state="Idle",think=0,hurt=0,speed=5,acc=0,fill=body.Info.Bar.Fill}
+			counts[zi]+=1 return
+		end
+	end
+end
+local function decide(a,now)
+	local z=Cfg.Zones[a.zi]
+	local pl,nd=nearest(a.pos)
+	a.asleep=nd>300
+	if a.asleep then a.target=nil setState(a,"Idle") return end
+	if now<a.hurt and a.attacker then
+		local dir=Vector3.new(a.pos.X-a.attacker.X,0,a.pos.Z-a.attacker.Z) if dir.Magnitude<.1 then dir=Vector3.new(1,0,0) end
+		a.target=clamp(z,a.pos+dir.Unit*30) a.speed=16 setState(a,"Run")
+	elseif pl and nd<28 then
+		if a.d.Rank<=4 then
+			local dir=Vector3.new(a.pos.X-pl.Position.X,0,a.pos.Z-pl.Position.Z) if dir.Magnitude<.1 then dir=Vector3.new(1,0,0) end
+			a.target=clamp(z,a.pos+dir.Unit*25) a.speed=13 setState(a,"Run")
+		else a.target=nil setState(a,"Alert") end
+	elseif not a.target and math.random()<.4 then
+		a.target=clamp(z,a.home+Vector3.new(math.random(-30,30),0,math.random(-30,30))) a.speed=5 setState(a,"Walk")
+	elseif not a.target then setState(a,"Idle") end
+end
+function A.Start()
+	for zi in Cfg.Zones do counts[zi]=0 end
+	task.spawn(function() while true do for zi in Cfg.Zones do if counts[zi]<Cfg.Cap then spawn(zi) task.wait() end end task.wait(1.5) end end)
+	RunS.Heartbeat:Connect(function(dt)
+		local now=os.clock()
+		for _,a in live do
+			if now>=a.think then a.think=now+.4+math.random()*.3 decide(a,now) end
+			a.acc+=dt
+			if a.target and not a.asleep and a.acc>=.05 then
+				local step=a.acc a.acc=0
+				local to=Vector3.new(a.target.X-a.pos.X,0,a.target.Z-a.pos.Z)
+				if to.Magnitude<1.2 then a.target=nil setState(a,"Idle")
+				else
+					local np=a.pos+to.Unit*math.min(to.Magnitude,a.speed*step)
+					local y=ground(np.X,np.Z) or a.pos.Y
+					a.pos=Vector3.new(np.X,y,np.Z)
+					a.fwd=a.fwd:Lerp(to.Unit,.25)
+					local p=a.pos+Vector3.new(0,a.d.Size,0)
+					a.body.CFrame=CFrame.lookAt(p,p+Vector3.new(a.fwd.X,0,a.fwd.Z))
+				end
+			end
+		end
+	end)
+end
+function A.Damage(m,dmg,plr)
+	local a=live[m] if not a then return false end
+	a.hp=(a.hp or a.d.Hp)-dmg
+	local f=math.clamp(a.hp/a.d.Hp,0,1)
+	a.fill.Size=UDim2.fromScale(f,1) a.fill.BackgroundColor3=Color3.fromRGB(230,60,60):Lerp(Color3.fromRGB(80,220,80),f)
+	m:SetAttribute("Hp",math.max(a.hp,0)) m:SetAttribute("Hit",(m:GetAttribute("Hit") or 0)+1)
+	a.hurt=os.clock()+6 a.think=0
+	local c=plr.Character a.attacker=c and c:GetPivot().Position
+	if a.hp<=0 then live[m]=nil counts[a.zi]-=1 m:SetAttribute("Dead",true) task.delay(.05,function() m:Destroy() end) return true,a.d end
+	return false
+end
+return A
+]]></ProtectedString></Properties></Item></Item><Item class="Script" referent="RBX11"><Properties><string name="Name">WorldBuilder</string><ProtectedString name="Source"><![CDATA[local RS=game:GetService("ReplicatedStorage")
+local Lit=game:GetService("Lighting")
+local CS=game:GetService("CollectionService")
+local Cfg=require(RS:WaitForChild("Config"))
+local W,M=workspace,Enum.Material
+local T=W.Terrain
+local RNG=Random.new(11)
+local function C3(h) return Color3.fromHex(h) end
+local function rnd(a,b) return a+RNG:NextNumber()*(b-a) end
+local function V(x,y,z) return Vector3.new(x,y,z) end
+local function fmt(n) local u={"","K","M","B"} local i=1 while n>=1000 and i<4 do n/=1000 i+=1 end return (string.format("%.1f",n):gsub("%.0$",""))..u[i] end
+local world=Instance.new("Folder") world.Name="World" world.Parent=W
+local function F(n,par) local f=Instance.new("Folder") f.Name=n f.Parent=par or world return f end
+local function P(par,name,size,cf,col,mat,ex)
+	local p=Instance.new("Part") p.Anchored=true p.Name=name p.Size=size p.CFrame=cf p.Color=col p.Material=mat or M.SmoothPlastic
+	p.TopSurface=Enum.SurfaceType.Smooth p.BottomSurface=Enum.SurfaceType.Smooth
+	if ex then for k,v in ex do p[k]=v end end
+	p.Parent=par return p
+end
+local function cyl(par,name,h,d,cf,col,mat,ex) ex=ex or {} ex.Shape=Enum.PartType.Cylinder return P(par,name,V(h,d,d),cf*CFrame.Angles(0,0,math.pi/2),col,mat,ex) end
+local function lightOn(p,col,range,br) local l=Instance.new("PointLight") l.Color=col l.Range=range l.Brightness=br or 1 l.Parent=p end
+local function emit(p,col,size,rate,speed,life,dir)
+	local e=Instance.new("ParticleEmitter") e.Color=ColorSequence.new(col) e.Size=NumberSequence.new(size) e.Rate=rate
+	e.Speed=NumberRange.new(speed[1],speed[2]) e.Lifetime=NumberRange.new(life) e.LightEmission=.6 e.Transparency=NumberSequence.new(.1,1)
+	if dir then e.EmissionDirection=dir end e.Parent=p return e
+end
+-- LIGHTING
+Lit.ClockTime=14 Lit.Brightness=3 Lit.Ambient=Color3.fromRGB(110,120,140) Lit.OutdoorAmbient=Color3.fromRGB(150,160,180) Lit.GlobalShadows=true
+Instance.new("Sky").Parent=Lit
+local atm=Instance.new("Atmosphere") atm.Density=.25 atm.Offset=.1 atm.Color=Color3.fromRGB(190,215,255) atm.Decay=Color3.fromRGB(150,180,230) atm.Haze=1 atm.Parent=Lit
+local bl=Instance.new("BloomEffect") bl.Intensity=.3 bl.Size=24 bl.Threshold=1.1 bl.Parent=Lit
+local sr=Instance.new("SunRaysEffect") sr.Intensity=.08 sr.Parent=Lit
+local cc=Instance.new("ColorCorrectionEffect") cc.Saturation=.25 cc.Contrast=.1 cc.Parent=Lit
+local cl=Instance.new("Clouds") cl.Cover=.6 cl.Density=.6 cl.Parent=T
+-- TERRAIN
+T:FillBlock(CFrame.new(0,-20,-50),V(1500,40,1100),M.Grass)
+for i=1,30 do
+	local a=i/30*6.283 local pos=V(math.cos(a)*720,20,-50+math.sin(a)*560)
+	local r=rnd(60,100) T:FillBall(pos,r,M.Rock)
+	if i%2==0 then T:FillBall(pos+V(0,r*.7,0),r*.55,M.Snow) end
+end
+for _,w in {{V(0,50,-620),V(1600,200,4)},{V(0,50,520),V(1600,200,4)},{V(-760,50,-50),V(4,200,1200)},{V(760,50,-50),V(4,200,1200)}} do
+	P(world,"Wall",w[2],CFrame.new(w[1]),Color3.new(),nil,{Transparency=1,CanCollide=true,CanQuery=false})
+end
+-- helpers
+local function Fence(par,a,b)
+	local d=b-a local len=d.Magnitude local dir=d.Unit local n=math.max(1,math.floor(len/6))
+	for i=0,n do P(par,"Post",V(1,3.4,1),CFrame.new(a+dir*(len*i/n)+V(0,1.7,0)),C3"#8b5a2b",M.Wood) end
+	for _,y in {1.2,2.6} do local c=a+d/2+V(0,y,0) P(par,"Rail",V(.5,.6,len),CFrame.lookAt(c,c+dir),C3"#a9743a",M.Wood) end
+end
+local function Lantern(par,pos,lit)
+	P(par,"Post",V(1.2,5,1.2),CFrame.new(pos+V(0,2.5,0)),C3"#3d3f4f",M.Slate)
+	local b=P(par,"Bulb",V(1.8,1.8,1.8),CFrame.new(pos+V(0,5.9,0)),C3"#ffd27a",M.Neon)
+	P(par,"Roof",V(2.6,.5,2.6),CFrame.new(pos+V(0,7,0)),C3"#3d3f4f",M.Slate)
+	if lit then lightOn(b,C3"#ffc870",22,1.2) end
+end
+local function tree(par,pos,kind,col,snow)
+	local s=rnd(.8,1.5)
+	P(par,"Trunk",V(1.4*s,6*s,1.4*s),CFrame.new(pos+V(0,3*s,0)),C3"#6b4423",M.Wood)
+	if kind==1 then P(par,"Leaves",V(10*s,8*s,10*s),CFrame.new(pos+V(0,8*s,0)),col,nil,{Shape=Enum.PartType.Ball})
+	else for i=1,3 do local w=(11-i*3)*s P(par,"Tier",V(w,4*s,w),CFrame.new(pos+V(0,(5+i*3)*s,0))*CFrame.Angles(0,i*.8,0),(snow and i==3) and C3"#f4faff" or col) end end
+end
+local function rock(par,pos,col,mat)
+	local s=rnd(.6,1.4) P(par,"Rock",V(rnd(3,7)*s,rnd(2,5)*s,rnd(3,7)*s),CFrame.new(pos+V(0,1.2*s,0))*CFrame.Angles(rnd(-.3,.3),rnd(0,6),rnd(-.3,.3)),col:Lerp(Color3.new(0,0,0),rnd(0,.2)),mat or M.Slate)
+end
+local function Tower(par,pos)
+	for _,o in {{-3,-3},{3,-3},{-3,3},{3,3}} do P(par,"Leg",V(1,20,1),CFrame.new(pos+V(o[1],10,o[2])),C3"#6b4a2b",M.Wood) end
+	P(par,"Deck",V(9,.8,9),CFrame.new(pos+V(0,20,0)),C3"#8b5a2b",M.WoodPlanks)
+	for _,o in {{-4,-4},{4,-4},{-4,4},{4,4}} do P(par,"Pole",V(.7,6,.7),CFrame.new(pos+V(o[1],23,o[2])),C3"#6b4a2b",M.Wood) end
+	P(par,"Roof",V(11,.8,11),CFrame.new(pos+V(0,26.4,0)),C3"#a04a2a",M.WoodPlanks)
+end
+-- HUB
+local hub=F("Hub")
+cyl(hub,"Plaza",.6,150,CFrame.new(0,.3,0),C3"#8e8aa8",M.Cobblestone)
+cyl(hub,"PlazaInner",.66,100,CFrame.new(0,.33,0),C3"#a09cbc",M.Cobblestone)
+cyl(hub,"FountainBase",2.2,46,CFrame.new(0,1.1,0),C3"#737890",M.Slate)
+cyl(hub,"FountainWater",.2,40,CFrame.new(0,1.95,0),C3"#46aaff",M.Glass,{Transparency=.35,CanCollide=false})
+cyl(hub,"FountainPillar",5,10,CFrame.new(0,4.7,0),C3"#737890",M.Slate)
+local crystal=P(hub,"Crystal",V(5,12,5),CFrame.new(0,13,0)*CFrame.Angles(0,.8,0),C3"#5ac8ff",M.Neon,{Transparency=.15,CanCollide=false})
+lightOn(crystal,C3"#78d2ff",35,2) emit(crystal,C3"#aef0ff",.6,10,{2,5},2)
+for i=1,8 do local a=i/8*6.283 P(hub,"Bush",V(5,3.5,5),CFrame.new(math.cos(a)*30,1.8,math.sin(a)*30),C3"#3cb44a",nil,{Shape=Enum.PartType.Ball}) end
+local roads=F("Roads")
+local function Road(a,b,w)
+	local d=b-a local len=d.Magnitude local mid=a+d/2+V(0,.3,0)
+	P(roads,"Road",V(w,.6,len),CFrame.lookAt(mid,mid+d.Unit),C3"#8d89a6",M.Cobblestone)
+	local right=d.Unit:Cross(Vector3.yAxis) local n=math.floor(len/32)
+	for i=1,n do for s=-1,1,2 do Lantern(roads,a+d.Unit*(len*i/(n+1))+right*s*(w/2+2),i%2==0) end end
+end
+local function Bridge(a,b,w)
+	local d=b-a local mid=a+d*.5 local dir=d.Unit local right=dir:Cross(Vector3.yAxis)
+	local c=mid+V(0,-4,0) T:FillBlock(CFrame.lookAt(c,c+right),V(14,8,120),M.Water)
+	local bc=mid+V(0,.7,0) P(roads,"Bridge",V(w+2,.8,18),CFrame.lookAt(bc,bc+dir),C3"#9a6a3a",M.WoodPlanks)
+	for s=-1,1,2 do Fence(roads,mid-dir*9+right*s*(w/2+.8),mid+dir*9+right*s*(w/2+.8)) end
+end
+local angles={math.pi/2}
+local gates=F("Gates",W)
+local zoneRock={M.Rock,M.Sandstone,M.Glacier,M.Basalt}
+local glow={C3"#3cff64",C3"#ffb43c",C3"#64c8ff",C3"#ff641e"}
+local gatePos={}
+for zi,z in Cfg.Zones do
+	local c=z.Center local toHub=(-V(c.X,0,c.Z)).Unit
+	local G=c+toHub*Cfg.ZR gatePos[zi]=G
+	local gAng=math.atan2(toHub.Z,toHub.X) table.insert(angles,math.atan2(-toHub.Z,-toHub.X))
+	local dir=-toHub
+	Road(V(c.X,0,c.Z).Unit*75,G,22)
+	Bridge(V(c.X,0,c.Z).Unit*75,G,22)
+	local gz=world
+	T:FillCylinder(CFrame.new(c.X,-4,c.Z),8,Cfg.ZR+12,({M.LeafyGrass,M.Sand,M.Snow,M.Basalt})[zi])
+	for i=1,17 do
+		local a=gAng+i*(6.283/18) local pos=c+V(math.cos(a),0,math.sin(a))*(Cfg.ZR+8)
+		T:FillBall(pos+V(0,10,0),26,zoneRock[zi]) if zi==3 then T:FillBall(pos+V(0,32,0),14,M.Snow) end
+	end
+	local g=Instance.new("Model") g.Name="Gate_"..z.Name g:SetAttribute("Zone",zi) g.Parent=gates
+	local cf=CFrame.lookAt(G,G+toHub)
+	local rc=({C3"#6f6c86",C3"#b89a64",C3"#9bb4d0",C3"#4a3030"})[zi]
+	P(g,"PL",V(8,26,10),cf*CFrame.new(-18,13,0),rc,M.Rock) P(g,"PR",V(8,26,10),cf*CFrame.new(18,13,0),rc,M.Rock)
+	local top=P(g,"Top",V(44,7,10),cf*CFrame.new(0,29,0),rc,M.Rock)
+	P(g,"Glow",V(28,1,.6),cf*CFrame.new(0,25.5,4.8),glow[zi],M.Neon)
+	P(g,"Dark",V(28,26,6),cf*CFrame.new(0,13,-6),C3"#14141c")
+	local bb=Instance.new("BillboardGui") bb.Size=UDim2.fromOffset(260,60) bb.StudsOffset=V(0,8,0) bb.MaxDistance=300 bb.Adornee=top bb.Parent=top
+	local tl=Instance.new("TextLabel") tl.Size=UDim2.fromScale(1,1) tl.BackgroundTransparency=1 tl.Font=Enum.Font.FredokaOne tl.TextScaled=true tl.TextColor3=glow[zi] tl.TextStrokeTransparency=0
+	tl.Text=z.Emoji.." "..string.upper(z.Name).." ZONE" tl.Parent=bb
+	if z.Cost>0 then
+		local b=P(g,"Barrier",V(28,26,1.5),cf*CFrame.new(0,13,0),glow[zi],M.Neon,{Transparency=.45})
+		local pr=Instance.new("ProximityPrompt") pr.Name="Prompt" pr.ActionText="Unlock" pr.ObjectText=z.Name.." Zone - "..fmt(z.Cost).." coins" pr.HoldDuration=.4 pr.MaxActivationDistance=16 pr.RequiresLineOfSight=false pr.Parent=b
+	end
+	Tower(world,G+toHub*24+V(-toHub.Z,0,toHub.X)*30)
+end
+-- ZONE DECOR
+local function spot(zi,margin) local z=Cfg.Zones[zi] local p for _=1,6 do local a=RNG:NextNumber()*6.283 local r=math.sqrt(RNG:NextNumber())*(Cfg.ZR-margin) p=V(z.Center.X+math.cos(a)*r,0,z.Center.Z+math.sin(a)*r) if (p-gatePos[zi]).Magnitude>32 then return p end end return p end
+local function arch(par,zi,col)
+	local p=spot(zi,30) local cf=CFrame.new(p)*CFrame.Angles(0,rnd(0,6),0)
+	P(par,"A1",V(7,16,8),cf*CFrame.new(-8,8,0),col,M.Rock) P(par,"A2",V(7,16,8),cf*CFrame.new(8,8,0),col,M.Rock) P(par,"A3",V(24,6,8),cf*CFrame.new(0,17,0),col,M.Rock)
+	P(par,"Dark",V(10,14,5),cf*CFrame.new(0,7,-1),C3"#14141c")
+end
+local f1=F("Forest")
+for i=1,45 do tree(f1,spot(1,10),RNG:NextInteger(1,2),Color3.fromHSV(rnd(.28,.36),.7,rnd(.55,.8))) end
+for i=1,16 do rock(f1,spot(1,8),C3"#8c8aa0") end
+for i=1,40 do P(f1,"Flower",V(.9,.9,.9),CFrame.new(spot(1,6)+V(0,.5,0)),({C3"#ffe03c",C3"#ff6ea0",C3"#ffffff"})[RNG:NextInteger(1,3)],M.Neon,{Shape=Enum.PartType.Ball}) end
+for i=1,2 do local p=spot(1,28) P(f1,"Hut",V(10,6,10),CFrame.new(p+V(0,3,0)),C3"#9a6a3a",M.WoodPlanks) for s=-1,1,2 do P(f1,"Roof",V(7,.8,12),CFrame.new(p+V(s*3,7.2,0))*CFrame.Angles(0,0,-.6*s),C3"#a04a2a",M.WoodPlanks) end P(f1,"Door",V(2.5,4,.3),CFrame.new(p+V(0,2,5.1)),C3"#3a2a1a") end
+T:FillCylinder(CFrame.new(Cfg.Zones[1].Center+V(30,-3,35)),6,12,M.Water)
+arch(f1,1,C3"#6f6c86")
+local f2=F("Desert")
+for i=1,8 do local p=spot(2,20) local r=rnd(14,26) T:FillBall(p,r,M.Sand) end
+for i=1,22 do local p=spot(2,10) local h=rnd(6,12) P(f2,"Cactus",V(1.6,h,1.6),CFrame.new(p+V(0,h/2,0)),C3"#2f9a4a") P(f2,"Arm",V(3,1.2,1.2),CFrame.new(p+V(1.8,h*.5,0)),C3"#2f9a4a") P(f2,"ArmUp",V(1.2,3.5,1.2),CFrame.new(p+V(3,h*.5+1.8,0)),C3"#2f9a4a") end
+for i=1,14 do rock(f2,spot(2,8),C3"#c4a06e",M.Sandstone) end
+do local p=spot(2,40) for i=1,6 do local s=46-i*7 P(f2,"Pyr",V(s,6,s),CFrame.new(p+V(0,i*6-3,0)),C3"#d6b878",M.Sandstone) end end
+arch(f2,2,C3"#b89a64") arch(f2,2,C3"#b89a64")
+local f3=F("Snow")
+for i=1,6 do local p=spot(3,25) T:FillBall(p,rnd(16,28),M.Glacier) end
+for i=1,40 do tree(f3,spot(3,10),2,C3"#2f7a4a",true) end
+for i=1,12 do rock(f3,spot(3,8),C3"#d6dcea",M.Slate) end
+for i=1,10 do local p=spot(3,10) local c=P(f3,"Crystal",V(2,rnd(6,12),2),CFrame.new(p+V(0,4,0))*CFrame.Angles(rnd(-.3,.3),rnd(0,6),rnd(-.3,.3)),C3"#8fe0ff",M.Neon,{Transparency=.2}) end
+T:FillCylinder(CFrame.new(Cfg.Zones[3].Center+V(30,-1.5,20)),3,28,M.Ice)
+arch(f3,3,C3"#9bb4d0")
+local sn=P(f3,"Snowfall",V(230,1,230),CFrame.new(Cfg.Zones[3].Center+V(0,60,0)),Color3.new(1,1,1),nil,{Transparency=1,CanCollide=false,CanQuery=false})
+emit(sn,Color3.new(1,1,1),.35,100,{6,10},9,Enum.NormalId.Bottom)
+local f4=F("Volcano") local vc=Cfg.Zones[4].Center
+T:FillBall(vc+V(50,20,-40),50,M.Basalt) T:FillBall(vc+V(50,55,-40),34,M.Basalt) T:FillBall(vc+V(50,80,-40),20,M.Basalt)
+local crater=cyl(f4,"Crater",1,22,CFrame.new(vc+V(50,99.6,-40)),C3"#ff6a1e",M.Neon,{CanCollide=false}) CS:AddTag(crater,"Lava")
+emit(crater,C3"#444444",6,12,{10,20},5,Enum.NormalId.Top) lightOn(crater,C3"#ff7a2a",60,2)
+for i=1,14 do local p=spot(4,12) T:FillBlock(CFrame.new(p.X,-1,p.Z)*CFrame.Angles(0,rnd(0,6),0),V(3,2,rnd(25,50)),M.CrackedLava) end
+for i=1,7 do local p=spot(4,18) local d=rnd(10,20) local l=cyl(f4,"Lava",.4,d,CFrame.new(p+V(0,.2,0)),C3"#ff6e14",M.Neon,{CanCollide=false}) CS:AddTag(l,"Lava") if i<=3 then lightOn(l,C3"#ff6a1e",30,1.5) end end
+for i=1,2 do local p=spot(4,30) local l=P(f4,"LavaRiver",V(8,.4,60),CFrame.new(p+V(0,.2,0))*CFrame.Angles(0,rnd(0,6),0),C3"#ff6e14",M.Neon,{CanCollide=false}) CS:AddTag(l,"Lava") end
+for i=1,18 do rock(f4,spot(4,8),C3"#2a2a30",M.Basalt) end
+for i=1,8 do local p=spot(4,10) P(f4,"Dead",V(1.2,9,1.2),CFrame.new(p+V(0,4.5,0)),C3"#1e1a1a",M.Wood) P(f4,"Br",V(.7,5,.7),CFrame.new(p+V(1.5,8,0))*CFrame.Angles(0,0,-.9),C3"#1e1a1a",M.Wood) end
+arch(f4,4,C3"#4a3030")
+local em=P(f4,"Embers",V(230,1,230),CFrame.new(vc+V(0,2,0)),Color3.new(1,1,1),nil,{Transparency=1,CanCollide=false,CanQuery=false})
+emit(em,C3"#ff9a3c",.5,40,{4,9},6,Enum.NormalId.Top)
+-- HUB SCATTER
+for i=1,40 do
+	local a=rnd(0,6.283) local r=rnd(95,190) local ok=true
+	for _,ra in angles do if math.abs((a-ra+3.1416)%6.2832-3.1416)<.3 then ok=false end end
+	if ok and math.sin(a)<.7 then local p=V(math.cos(a)*r,0,math.sin(a)*r) if i%3==0 then rock(hub,p,C3"#8c8aa0") else tree(hub,p,RNG:NextInteger(1,2),Color3.fromHSV(rnd(.27,.35),.7,rnd(.6,.85))) end end
+end
+for i=0,23 do
+	local a=i/24*6.283 local ok=true
+	for _,ra in angles do if math.abs((a-ra+3.1416)%6.2832-3.1416)<.4 then ok=false end end
+	if ok then Fence(hub,V(math.cos(a)*85,0,math.sin(a)*85),V(math.cos(a+.26)*85,0,math.sin(a+.26)*85)) end
+end
+for i=1,12 do local a=i/12*6.283 Lantern(hub,V(math.cos(a)*68,0,math.sin(a)*68),i%3==0) end
+Tower(hub,V(-100,0,-40)) Tower(hub,V(100,0,-40))
+Road(V(0,0,75),V(0,0,410),24)
+-- WATERFALL BACKDROP
+local cliff=F("Waterfall")
+P(cliff,"Cliff",V(140,130,50),CFrame.new(0,65,-520),C3"#78738a",M.Rock)
+T:FillBall(V(-95,40,-500),60,M.Rock) T:FillBall(V(95,40,-500),60,M.Rock)
+local wf=P(cliff,"Water",V(26,120,3),CFrame.new(0,62,-493),C3"#82d2ff",M.Glass,{Transparency=.25,CanCollide=false})
+emit(wf,Color3.new(1,1,1),3,15,{3,6},2,Enum.NormalId.Front)
+T:FillBlock(CFrame.new(0,-3,-468),V(80,6,50),M.Water)
+local paw=P(cliff,"Paw",V(14,12,3),CFrame.new(0,118,-494),C3"#ffe178",M.Neon,{Shape=Enum.PartType.Ball,CanCollide=false})
+for i,x in {-9,-3,3,9} do P(cliff,"Toe",V(4,5,3),CFrame.new(x,126+((i==2 or i==3) and 2 or 0),-494),C3"#ffe178",M.Neon,{Shape=Enum.PartType.Ball,CanCollide=false}) end
+lightOn(paw,C3"#ffe178",40,2)
+-- BASES
+local bases=F("Bases",W)
+local gold=C3"#ffd23c"
+for i=1,8 do
+	local row,col=(i-1)//4,(i-1)%4
+	local cx,cz=-165+col*110,250+row*110
+	local plot=Instance.new("Model") plot.Name="Plot"..i plot:SetAttribute("Owner",0) plot.Parent=bases
+	P(plot,"Floor",V(80,1,80),CFrame.new(cx,.5,cz),C3"#6fc65a",M.Grass)
+	for _,r in {{0,-40,80,2},{0,40,80,2},{-40,0,2,80},{40,0,2,80}} do P(plot,"Rim",V(r[3],2,r[4]),CFrame.new(cx+r[1],1,cz+r[2]),C3"#8e8aa8",M.Cobblestone) end
+	local slots=Instance.new("Folder") slots.Name="Slots" slots.Parent=plot
+	local k=0
+	for _,zz in {-26,-8,10} do for _,xx in {-27,-9,9,27} do
+		k+=1
+		local s=P(slots,"S"..k,V(7,1.2,7),CFrame.new(cx+xx,1.6,cz+zz),C3"#5a5f78",M.Slate)
+		P(slots,"Ring",V(7.4,.2,7.4),CFrame.new(cx+xx,2.3,cz+zz),gold,M.Neon,{CanCollide=false})
+		local pr=Instance.new("ProximityPrompt") pr.Name="Prompt" pr.ActionText="Place" pr.ObjectText="Slot "..k pr.HoldDuration=.15 pr.MaxActivationDistance=11 pr.RequiresLineOfSight=false pr.Parent=s
+		local bb=Instance.new("BillboardGui") bb.Name="Label" bb.Size=UDim2.fromOffset(140,28) bb.StudsOffset=V(0,8,0) bb.MaxDistance=60 bb.Adornee=s bb.Parent=s
+		local t=Instance.new("TextLabel") t.Name="T" t.Size=UDim2.fromScale(1,1) t.BackgroundTransparency=1 t.Font=Enum.Font.FredokaOne t.TextScaled=true t.TextColor3=Color3.new(1,1,1) t.TextStrokeTransparency=0 t.Text="Slot "..k t.Parent=bb
+	end end
+	local col2=P(plot,"Collector",V(10,.8,6),CFrame.new(cx,1.4,cz+28),C3"#32dc50",M.Neon)
+	local cp=Instance.new("ProximityPrompt") cp.Name="Prompt" cp.ActionText="Collect" cp.ObjectText="Earnings" cp.HoldDuration=.2 cp.MaxActivationDistance=12 cp.RequiresLineOfSight=false cp.Parent=col2
+	local cg=Instance.new("BillboardGui") cg.Name="Gui" cg.Size=UDim2.fromOffset(220,36) cg.StudsOffset=V(0,4,0) cg.MaxDistance=80 cg.Adornee=col2 cg.Parent=col2
+	local ct=Instance.new("TextLabel") ct.Name="T" ct.Size=UDim2.fromScale(1,1) ct.BackgroundTransparency=1 ct.Font=Enum.Font.FredokaOne ct.TextScaled=true ct.TextColor3=C3"#ffe03c" ct.TextStrokeTransparency=0 ct.Text="💰 0" ct.Parent=cg
+	local sign=P(plot,"Sign",V(16,6,1),CFrame.new(cx,5,cz+38),C3"#5a3a22",M.WoodPlanks)
+	P(plot,"SignPost1",V(1,5,1),CFrame.new(cx-6,2.5,cz+38),C3"#5a3a22",M.Wood) P(plot,"SignPost2",V(1,5,1),CFrame.new(cx+6,2.5,cz+38),C3"#5a3a22",M.Wood)
+	local sg=Instance.new("SurfaceGui") sg.Face=Enum.NormalId.Back sg.Parent=sign
+	local sg2=Instance.new("SurfaceGui") sg2.Face=Enum.NormalId.Front sg2.Name="Face" sg2.Parent=sign
+	for _,g in {sg,sg2} do local l=Instance.new("TextLabel") l.Name="T" l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.Font=Enum.Font.FredokaOne l.TextScaled=true l.TextColor3=Color3.new(1,1,1) l.Text="Free Base" l.Parent=g end
+	P(plot,"Spawn",V(6,1,6),CFrame.new(cx,1.1,cz+20),C3"#3c8cff",nil,{CanCollide=false,Transparency=.4})
+	Instance.new("Folder",plot).Name="Display"
+end
+-- SPAWN
+local sp=Instance.new("SpawnLocation") sp.Size=V(14,1,14) sp.Position=V(0,1.1,45) sp.Anchored=true sp.Neutral=true sp.Duration=0 sp.Transparency=1 sp.CanCollide=false sp.Parent=world
+local rdy=Instance.new("BoolValue") rdy.Name="WorldReady" rdy.Value=true rdy.Parent=W
+]]></ProtectedString></Properties></Item><Item class="Script" referent="RBX12"><Properties><string name="Name">GameServer</string><ProtectedString name="Source"><![CDATA[local Players=game:GetService("Players")
+local DSS=game:GetService("DataStoreService")
+local RS=game:GetService("ReplicatedStorage")
+local SSS=game:GetService("ServerScriptService")
+local Cfg=require(RS:WaitForChild("Config"))
+local Models=require(SSS:WaitForChild("Modules"):WaitForChild("Models"))
+local Animals=require(SSS.Modules:WaitForChild("Animals"))
+local Act,Push=RS:WaitForChild("Act"),RS:WaitForChild("Push")
+workspace:WaitForChild("WorldReady")
+Animals.Start()
+local store=DSS:GetDataStore("AHS_v1")
+local D,R={}, {}
+local dirty={}
+local function fmt(n) n=math.floor(n) local u={"","K","M","B","T"} local i=1 while n>=1000 and i<5 do n/=1000 i+=1 end return (string.format("%.2f",n):gsub("%.?0+$",""))..u[i] end
+local function count(t) local n=0 for _ in t do n+=1 end return n end
+local function def() return {Coins=100,Gems=10,Weapons={Pistol=true},Equipped="Pistol",Animals={},NextId=1,Placed={},Slots=4,Up={},Reb=0,Idx={},QI=1,QP=0,Zones={Forest=true},Daily={t=0,s=0},Boost={},Caught=0,Earned=0,Opts={},Pending=0} end
+local function merge(t,d) for k,v in d do if t[k]==nil then t[k]=v end end return t end
+local function mark(p) dirty[p]=true end
+local function note(p,txt,col) Push:FireClient(p,"Notify",txt,col) end
+local function mult(p) local d=D[p] return (1+d.Reb)*((d.Boost.Coins or 0)>os.time() and 2 or 1) end
+local function stats(p)
+	local d=D[p] local w=Cfg.WN[d.Equipped] local function L(k) return d.Up[k] or 0 end
+	return {dmg=w.Dmg*(1+.08*L"Damage")*((d.Boost.Dmg or 0)>os.time() and 2 or 1),rate=w.Rate*(1+.04*L"FireRate"),mag=math.floor(w.Mag*(1+.1*L"Ammo")),rel=w.Reload*(1-.02*L"Reload"),rng=w.Range*(1+.05*L"Range"),crit=.05+.01*L"Crit",spd=16*(1+.03*L"Speed")}
+end
+local function income(p) local d=D[p] local t=0 for _,n in d.Placed do t+=Cfg.AN[n].Inc end return t*mult(p) end
+local function qfix(d)
+	for _=1,8 do
+		local q=Cfg.Quest(d.QI)
+		if (q.t=="zone" and count(d.Zones)>=#Cfg.Zones) or (q.t=="weapon" and count(d.Weapons)>=#Cfg.W) or (q.t=="unique" and count(d.Idx)>=#Cfg.A) then d.QI+=1 d.QP=0 else break end
+	end
+end
+local function qprog(p,t,n)
+	local d=D[p] qfix(d) local q,goal,rc,rg=Cfg.Quest(d.QI)
+	if q.t~=t then return end
+	d.QP+=n
+	if d.QP>=goal then d.Coins+=rc d.Gems+=rg d.QI+=1 d.QP=0 note(p,"Quest complete! +"..fmt(rc).." coins +"..rg.." gems",Color3.fromRGB(255,220,60)) Push:FireClient(p,"Sfx","caught") end
+	mark(p)
+end
+local function pack(p)
+	local d,r=D[p],R[p] qfix(d)
+	return {Coins=d.Coins,Gems=d.Gems,Weapons=d.Weapons,Equipped=d.Equipped,Animals=d.Animals,Placed=d.Placed,Slots=d.Slots,Up=d.Up,Reb=d.Reb,Idx=d.Idx,QI=d.QI,QP=d.QP,Zones=d.Zones,Daily=d.Daily,Boost=d.Boost,Caught=d.Caught,Pending=math.floor(d.Pending),Inc=income(p),St=stats(p),RebCost=Cfg.RebCost(d.Reb),Sel=r.sel,Opts=d.Opts}
+end
+-- DATA
+local function load(p)
+	for i=1,3 do local ok,res=pcall(store.GetAsync,store,"u"..p.UserId) if ok then return true,res end task.wait(1.5*i) end
+	return false
+end
+local function save(p)
+	local d,r=D[p],R[p] if not d or r.nosave or r.saving then return end
+	r.saving=true d.LastT=os.time()
+	for _=1,3 do if pcall(store.SetAsync,store,"u"..p.UserId,d) then break end task.wait(1) end
+	r.saving=false
+end
+-- WEAPON / TOOL
+local function giveTool(p)
+	local c=p.Character local h=c and c:FindFirstChildOfClass("Humanoid") if not h then return end
+	for _,t in p.Backpack:GetChildren() do if t:IsA("Tool") then t:Destroy() end end
+	for _,t in c:GetChildren() do if t:IsA("Tool") then t:Destroy() end end
+	local t=Models.Weapon(Cfg.WN[D[p].Equipped]) t.Parent=p.Backpack h:EquipTool(t)
+	local st=stats(p) h.WalkSpeed=st.spd R[p].ammo=st.mag R[p].reloadUntil=0 R[p].reloading=false
+	Push:FireClient(p,"Ammo",st.mag,st.mag)
+end
+local function startReload(p)
+	local r=R[p] if r.reloading then return end
+	r.reloading=true local st=stats(p) r.reloadUntil=os.clock()+st.rel
+	Push:FireClient(p,"Reload",st.rel)
+	task.delay(st.rel,function() if R[p] then local s=stats(p) R[p].ammo=s.mag R[p].reloading=false Push:FireClient(p,"Ammo",s.mag,s.mag) end end)
+end
+local rayP=RaycastParams.new() rayP.FilterType=Enum.RaycastFilterType.Include
+local function capture(p,d0,pos)
+	local d=D[p] table.insert(d.Animals,{id=d.NextId,n=d0.Name}) d.NextId+=1 d.Caught+=1
+	local new=not d.Idx[d0.Name] d.Idx[d0.Name]=true
+	local g=d0.Rank>=3 and (d0.Rank-2) or 0 d.Gems+=g
+	Push:FireClient(p,"Caught",d0.Name,d0.Rank,g,new,pos)
+	qprog(p,"hunt",1) if new then qprog(p,"unique",1) end mark(p)
+end
+local function shoot(p,dir)
+	local d,r=D[p],R[p]
+	if typeof(dir)~="Vector3" or dir.Magnitude<.5 or dir.Magnitude~=dir.Magnitude then return end
+	local c=p.Character local head=c and c:FindFirstChild("Head") local tool=c and c:FindFirstChildOfClass("Tool") if not head or not tool then return end
+	local st=stats(p) local now=os.clock()
+	if r.reloading or now-r.last<(1/st.rate)*.8 then return end
+	if r.ammo<=0 then startReload(p) return end
+	r.last=now r.ammo-=1
+	dir=dir.Unit local origin=head.Position
+	rayP.FilterDescendantsInstances={Animals.Folder,workspace.Terrain}
+	local res=workspace:Raycast(origin,dir*st.rng,rayP)
+	local endp=res and res.Position or origin+dir*st.rng
+	local col=Cfg.RarCol[Cfg.WN[d.Equipped].Rank]
+	for _,o in Players:GetPlayers() do if o~=p then Push:FireClient(o,"Tracer",origin,endp,col) end end
+	if res then
+		local m=res.Instance:FindFirstAncestorOfClass("Model")
+		if m and m.Parent==Animals.Folder and d.Zones[m:GetAttribute("Zone")] then
+			local crit=math.random()<st.crit local dmg=st.dmg*(crit and 2 or 1)
+			local dead,def0=Animals.Damage(m,dmg,p)
+			Push:FireClient(p,"Hit",res.Position,math.floor(dmg),crit,dead)
+			if dead then capture(p,def0,res.Position) end
+		end
+	end
+	Push:FireClient(p,"Ammo",r.ammo,st.mag)
+	if r.ammo<=0 then startReload(p) end
+end
+-- BASES
+local plots={} for _,pl in workspace:WaitForChild("Bases"):GetChildren() do table.insert(plots,pl) end
+table.sort(plots,function(a,b) return a.Name<b.Name end)
+local function findAnimal(d,id) for i,e in d.Animals do if e.id==id then return i,e end end end
+local function refreshPlot(p)
+	local d,r=D[p],R[p] local plot=r.plot if not plot then return end
+	for k=1,12 do
+		local slot=plot.Slots["S"..k] local pr=slot.Prompt local key=tostring(k) local name=d.Placed[key]
+		local txt
+		if k>d.Slots then pr.ActionText="Unlock" pr.ObjectText=fmt(Cfg.SlotCost(k)).." coins" txt="🔒 "..fmt(Cfg.SlotCost(k)) slot.Color=Color3.fromRGB(60,60,70)
+		elseif name then pr.ActionText="Pick up" pr.ObjectText=name txt="" slot.Color=Color3.fromRGB(90,95,120)
+		else pr.ActionText="Place" pr.ObjectText="Slot "..k txt="Empty" slot.Color=Color3.fromRGB(90,95,120) end
+		slot.Label.T.Text=txt
+		local old=r.disp[k]
+		if old and (not name or old.Name~=name) then old:Destroy() r.disp[k]=nil old=nil end
+		if name and not old then
+			local d0=Cfg.AN[name] local m=Models.Animal(d0,.55,name.." +"..fmt(d0.Inc).."/s")
+			m.PrimaryPart.CFrame=CFrame.new(slot.Position+Vector3.new(0,slot.Size.Y/2+d0.Size*.55,0))*CFrame.Angles(0,math.pi,0)
+			m.Parent=plot.Display r.disp[k]=m
+		end
+	end
+end
+local function onSlot(p,plot,k)
+	local d,r=D[p],R[p] if not d or r.plot~=plot then return end
+	local key=tostring(k)
+	if k>d.Slots then
+		if k~=d.Slots+1 then note(p,"Unlock the previous slot first") return end
+		local cost=Cfg.SlotCost(k) if d.Coins<cost then note(p,"Need "..fmt(cost).." coins") return end
+		d.Coins-=cost d.Slots=k note(p,"Slot unlocked!",Color3.fromRGB(80,255,120)) Push:FireClient(p,"Sfx","unlock")
+	elseif d.Placed[key] then
+		local n=d.Placed[key] d.Placed[key]=nil local id=d.NextId d.NextId+=1 table.insert(d.Animals,{id=id,n=n}) r.sel=id
+		note(p,n.." picked up - choose a free pedestal to move it")
+	elseif r.sel then
+		local i,e=findAnimal(d,r.sel) if not i then r.sel=nil note(p,"Select an animal in Inventory first") return end
+		table.remove(d.Animals,i) d.Placed[key]=e.n r.sel=nil qprog(p,"place",1) Push:FireClient(p,"Sfx","place")
+	else note(p,"Open Inventory > Animals and select one first") return end
+	refreshPlot(p) mark(p)
+end
+local function collect(p,plot)
+	local d,r=D[p],R[p] if not d or r.plot~=plot then return end
+	local n=math.floor(d.Pending) if n<1 then note(p,"Nothing to collect yet") return end
+	d.Pending-=n d.Coins+=n d.Earned+=n Push:FireClient(p,"Coin",n) qprog(p,"coins",n) mark(p)
+end
+for _,plot in plots do
+	for k=1,12 do plot.Slots["S"..k].Prompt.Triggered:Connect(function(pl) onSlot(pl,plot,k) end) end
+	plot.Collector.Prompt.Triggered:Connect(function(pl) collect(pl,plot) end)
+end
+for _,g in workspace:WaitForChild("Gates"):GetChildren() do
+	local zi=g:GetAttribute("Zone") local z=Cfg.Zones[zi] local b=g:FindFirstChild("Barrier")
+	if b then b.Prompt.Triggered:Connect(function(p)
+		local d=D[p] if not d or d.Zones[z.Name] then return end
+		if not d.Zones[Cfg.Zones[zi-1].Name] then note(p,"Unlock "..Cfg.Zones[zi-1].Name.." first") return end
+		if d.Coins<z.Cost then note(p,"Need "..fmt(z.Cost).." coins to unlock "..z.Name) return end
+		d.Coins-=z.Cost d.Zones[z.Name]=true qprog(p,"zone",1) Push:FireClient(p,"ZoneUnlocked",z.Name) mark(p)
+	end) end
+end
+-- ACTIONS
+local function groundAt(pos) local rp=RaycastParams.new() rp.FilterType=Enum.RaycastFilterType.Include rp.FilterDescendantsInstances={workspace.Terrain} local r=workspace:Raycast(Vector3.new(pos.X,300,pos.Z),Vector3.new(0,-600,0),rp) return r and r.Position.Y or 5 end
+Act.OnServerEvent:Connect(function(p,k,a,b)
+	local d,r=D[p],R[p] if not d then return end
+	if k=="Shoot" then shoot(p,a)
+	elseif k=="Reload" then if r.ammo<stats(p).mag then startReload(p) end
+	elseif k=="Equip" and type(a)=="string" and d.Weapons[a] then d.Equipped=a giveTool(p) mark(p)
+	elseif k=="Buy" and type(a)=="string" and Cfg.WN[a] then
+		local w=Cfg.WN[a]
+		if d.Weapons[a] then d.Equipped=a giveTool(p) mark(p) return end
+		local key=w.Cur=="c" and "Coins" or "Gems"
+		if d[key]<w.Cost then note(p,"Not enough "..(key=="Coins" and "coins" or "gems")) return end
+		d[key]-=w.Cost d.Weapons[a]=true d.Equipped=a giveTool(p) qprog(p,"weapon",1)
+		note(p,"You bought "..a.."!",Cfg.RarCol[w.Rank]) Push:FireClient(p,"Sfx","unlock") mark(p)
+	elseif k=="Up" and type(a)=="string" then
+		for _,u in Cfg.Up do if u[1]==a then
+			local l=d.Up[a] or 0 if l>=Cfg.UpMax then return end
+			local cost=Cfg.UpCost(u[3],l) if d.Coins<cost then note(p,"Need "..fmt(cost).." coins") return end
+			d.Coins-=cost d.Up[a]=l+1 qprog(p,"upgrade",1) Push:FireClient(p,"Sfx","place")
+			local c=p.Character local h=c and c:FindFirstChildOfClass("Humanoid") if h then h.WalkSpeed=stats(p).spd end
+			mark(p)
+		end end
+	elseif k=="BuyBoost" then
+		for _,bd in Cfg.Boosts do if bd[1]==a then
+			if d.Gems<bd[3] then note(p,"Not enough gems") return end
+			d.Gems-=bd[3] d.Boost[a]=math.max(d.Boost[a] or 0,os.time())+600 note(p,bd[2].." activated!",Color3.fromRGB(80,255,120)) mark(p)
+		end end
+	elseif k=="BuyCoins" and Cfg.Packs[a] then
+		local pk=Cfg.Packs[a] if d.Gems<pk.g then note(p,"Not enough gems") return end
+		d.Gems-=pk.g d.Coins+=pk.c Push:FireClient(p,"Coin",pk.c) mark(p)
+	elseif k=="Select" then
+		if a==nil then r.sel=nil elseif type(a)=="number" and findAnimal(d,a) then r.sel=(r.sel==a) and nil or a end mark(p)
+	elseif k=="Rebirth" then
+		local cost=Cfg.RebCost(d.Reb) if d.Coins<cost then note(p,"Need "..fmt(cost).." coins to rebirth") return end
+		d.Reb+=1 d.Coins=100 d.Up={} d.Pending=0 d.Slots=math.min(12,d.Slots+1) d.Gems+=50*d.Reb
+		local c=p.Character local h=c and c:FindFirstChildOfClass("Humanoid") if h then h.WalkSpeed=stats(p).spd end
+		giveTool(p) refreshPlot(p) Push:FireClient(p,"Rebirth",d.Reb) mark(p)
+	elseif k=="Daily" then
+		local day=math.floor(os.time()/86400)
+		if d.Daily.t==day then note(p,"Already claimed today") return end
+		if d.Daily.t==day-1 then d.Daily.s+=1 else d.Daily.s=1 end
+		d.Daily.t=day local rw=Cfg.Daily[(d.Daily.s-1)%7+1]
+		d.Coins+=rw.c or 0 d.Gems+=rw.g or 0 note(p,"Daily reward claimed!",Color3.fromRGB(80,255,120)) Push:FireClient(p,"Coin",rw.c or 0) mark(p)
+	elseif k=="TP" and type(a)=="string" then
+		local c=p.Character if not c then return end
+		if a=="Base" and r.plot then c:PivotTo(r.plot.Spawn.CFrame+Vector3.new(0,5,0))
+		elseif a:sub(1,2)=="G:" then for i,z in Cfg.Zones do if z.Name==a:sub(3) then local toHub=(-Vector3.new(z.Center.X,0,z.Center.Z)).Unit local gp=z.Center+toHub*(Cfg.ZR-20)*-1 gp=z.Center+toHub*(Cfg.ZR+16) c:PivotTo(CFrame.new(gp.X,groundAt(gp)+5,gp.Z)) end end
+		elseif d.Zones[a] then for _,z in Cfg.Zones do if z.Name==a then local gp=z.Center+(-Vector3.new(z.Center.X,0,z.Center.Z)).Unit*60 c:PivotTo(CFrame.new(gp.X,groundAt(gp)+5,gp.Z)) end end end
+	elseif k=="Collect" and r.plot then
+		local c=p.Character local rt=c and c:FindFirstChild("HumanoidRootPart")
+		if rt and (rt.Position-r.plot.Collector.Position).Magnitude<45 then collect(p,r.plot) else note(p,"Go to your base collector pad") end
+	elseif k=="Opt" and (a=="Music" or a=="SFX" or a=="Auto" or a=="Low") and type(b)=="boolean" then d.Opts[a]=b
+	end
+end)
+-- JOIN / LEAVE
+local function onJoin(p)
+	R[p]={ammo=0,last=0,reloadUntil=0,disp={}}
+	local ok,data=load(p) local d
+	if ok then d=merge(data or {},def()) else d=def() R[p].nosave=true end
+	D[p]=d
+	for _,pl in plots do if pl:GetAttribute("Owner")==0 then pl:SetAttribute("Owner",p.UserId) R[p].plot=pl pl.Sign.Face.T.Text=p.DisplayName.."'s Base" pl.Sign.SurfaceGui.T.Text=p.DisplayName.."'s Base" break end end
+	refreshPlot(p)
+	if R[p].nosave then note(p,"Data failed to load - progress will not be saved this session",Color3.fromRGB(255,80,80)) end
+	local function onChar(c) c:WaitForChild("Humanoid") task.wait(.2) giveTool(p) mark(p) end
+	p.CharacterAdded:Connect(onChar) if p.Character then task.spawn(onChar,p.Character) end
+	mark(p)
+end
+Players.PlayerAdded:Connect(onJoin)
+for _,p in Players:GetPlayers() do task.spawn(onJoin,p) end
+Players.PlayerRemoving:Connect(function(p)
+	save(p) local r=R[p]
+	if r and r.plot then for _,m in r.disp do m:Destroy() end r.plot:SetAttribute("Owner",0) r.plot.Sign.Face.T.Text="Free Base" r.plot.Sign.SurfaceGui.T.Text="Free Base" for k=1,12 do local s=r.plot.Slots["S"..k] s.Label.T.Text="Slot "..k end end
+	D[p]=nil R[p]=nil dirty[p]=nil
+end)
+game:BindToClose(function() for p in D do task.spawn(save,p) end task.wait(3) end)
+task.spawn(function() while true do task.wait(90) for p in D do task.spawn(save,p) end end end)
+task.spawn(function() while true do task.wait(1)
+	for p,d in D do local inc=income(p) d.Pending+=inc local r=R[p]
+		if r.plot then r.plot.Collector.Gui.T.Text="💰 "..fmt(d.Pending).."  (+"..fmt(inc).."/s)" end mark(p) end
+end end)
+task.spawn(function() while true do task.wait(.4) for p in dirty do dirty[p]=nil if D[p] then Push:FireClient(p,"State",pack(p)) end end end end)
+]]></ProtectedString></Properties></Item></Item><Item class="StarterPlayer" referent="RBX16"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX15"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX14"><Properties><string name="Name">ClientMain</string><ProtectedString name="Source"><![CDATA[local Players=game:GetService("Players")
+local RS=game:GetService("ReplicatedStorage")
+local TS=game:GetService("TweenService")
+local CS=game:GetService("CollectionService")
+local Lit=game:GetService("Lighting")
+local SndS=game:GetService("SoundService")
+local Debris=game:GetService("Debris")
+local RunS=game:GetService("RunService")
+local lp=Players.LocalPlayer
+local Cfg=require(RS:WaitForChild("Config"))
+local Act,Push=RS:WaitForChild("Act"),RS:WaitForChild("Push")
+local mouse=lp:GetMouse()
+local S=nil
+local musicS
+local opts={Music=true,SFX=true,Auto=false,Low=false}
+local FONT=Enum.Font.FredokaOne
+local function RGB(r,g,b) return Color3.fromRGB(r,g,b) end
+local WHITE=Color3.new(1,1,1)
+local function N(cls,props,par) local i=Instance.new(cls) for k,v in props do i[k]=v end if par then i.Parent=par end return i end
+local function rd(par,r) return N("UICorner",{CornerRadius=UDim.new(0,r or 8)},par) end
+local function st(par,col,th) return N("UIStroke",{Color=col,Thickness=th or 2,ApplyStrokeMode=Enum.ApplyStrokeMode.Border},par) end
+local function fmt(n) n=math.floor(n) local u={"","K","M","B","T"} local i=1 while n>=1000 and i<5 do n/=1000 i+=1 end return (string.format("%.2f",n):gsub("%.?0+$",""))..u[i] end
+local function Sfx(k)
+	if not opts.SFX then return end local e=Cfg.Snd[k] if not e then return end
+	local s=N("Sound",{SoundId=e[1],PlaybackSpeed=e[2],Volume=e[3]},SndS) s:Play() Debris:AddItem(s,3)
+end
+local function lbl(par,text,size,props)
+	props=props or {} props.Text=text props.TextSize=size props.Font=FONT props.BackgroundTransparency=1
+	props.TextColor3=props.TextColor3 or WHITE props.TextStrokeTransparency=props.TextStrokeTransparency or .35
+	return N("TextLabel",props,par)
+end
+local function btn(par,text,size,col,props)
+	props=props or {} props.Text=text props.TextSize=size props.Font=FONT props.BackgroundColor3=col props.TextColor3=WHITE props.TextStrokeTransparency=.4
+	local b=N("TextButton",props,par) rd(b,8) st(b,col:Lerp(Color3.new(0,0,0),.45),2)
+	b.Activated:Connect(function() Sfx("ui") end) return b
+end
+local GREEN,RED,BLUE,PURP,GOLD=RGB(74,200,60),RGB(230,60,60),RGB(50,140,255),RGB(150,70,230),RGB(255,190,40)
+local PANEL,INNER=RGB(30,40,78),RGB(20,28,58)
+local gui=N("ScreenGui",{Name="AHS",ResetOnSpawn=false,IgnoreGuiInset=true,DisplayOrder=3},lp:WaitForChild("PlayerGui"))
+-- WINDOWS
+local wins,Rf,cur={}, {}, nil
+local function target(w) local v=gui.AbsoluteSize return math.min(1,v.X*.94/w.w,v.Y*.84/w.h) end
+local function Close(id)
+	local w=wins[id] if not w or not w.f.Visible then return end
+	if cur==id then cur=nil end
+	local t=TS:Create(w.sc,TweenInfo.new(.15,Enum.EasingStyle.Back,Enum.EasingDirection.In),{Scale=0}) t:Play() t.Completed:Once(function() if cur~=id then w.f.Visible=false end end)
+end
+local function Open(id)
+	if cur==id then Close(id) return end
+	if cur then Close(cur) end
+	local w=wins[id] cur=id w.sc.Scale=0 w.f.Visible=true
+	TS:Create(w.sc,TweenInfo.new(.25,Enum.EasingStyle.Back),{Scale=target(w)}):Play()
+	if Rf[id] and S then Rf[id]() end
+end
+local function Win(id,title,icon,w,h)
+	local f=N("Frame",{Name=id,Size=UDim2.fromOffset(w,h),Position=UDim2.fromScale(.5,.5),AnchorPoint=Vector2.new(.5,.5),BackgroundColor3=PANEL,Visible=false},gui)
+	rd(f,14) st(f,RGB(70,140,255),3)
+	local sc=N("UIScale",{Scale=0},f)
+	lbl(f,icon.." "..title,26,{Size=UDim2.new(1,-60,0,44),Position=UDim2.fromOffset(12,2),TextXAlignment=Enum.TextXAlignment.Left})
+	local x=btn(f,"✕",20,RED,{Size=UDim2.fromOffset(34,34),Position=UDim2.new(1,-42,0,8)}) x.Activated:Connect(function() Close(id) end)
+	wins[id]={f=f,sc=sc,w=w,h=h}
+	return N("Frame",{Position=UDim2.fromOffset(10,52),Size=UDim2.new(1,-20,1,-62),BackgroundTransparency=1},f)
+end
+gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function() for id,w in wins do if w.f.Visible and cur==id then w.sc.Scale=target(w) end end end)
+local function clear(par) for _,c in par:GetChildren() do if not c:IsA("UIListLayout") and not c:IsA("UIGridLayout") and not c:IsA("UIPadding") then c:Destroy() end end end
+local function scroller(par,pos,size)
+	local s=N("ScrollingFrame",{Position=pos,Size=size,BackgroundColor3=INNER,BorderSizePixel=0,ScrollBarThickness=6,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y},par) rd(s,10) return s
+end
+local function pad(s) N("UIPadding",{PaddingTop=UDim.new(0,8),PaddingLeft=UDim.new(0,8),PaddingRight=UDim.new(0,8),PaddingBottom=UDim.new(0,8)},s) end
+local function gridL(s,cell) N("UIGridLayout",{CellSize=cell,CellPadding=UDim2.fromOffset(8,8),SortOrder=Enum.SortOrder.LayoutOrder},s) pad(s) end
+local function listL(s) N("UIListLayout",{Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder},s) pad(s) end
+local function tabRow(par,names,get,set,x,y,w,vert)
+	local bs={} w=w or 110
+	for i,n in names do
+		local pos=vert and UDim2.fromOffset(x,y+(i-1)*38) or UDim2.fromOffset(x+(i-1)*(w+6),y)
+		local b=btn(par,n,16,RGB(45,60,110),{Size=UDim2.fromOffset(w,32),Position=pos}) b.Activated:Connect(function() set(n) end) bs[n]=b
+	end
+	return function() for n,b in bs do b.BackgroundColor3=get()==n and RGB(60,160,255) or RGB(45,60,110) end end
+end
+local EM={{"Rabbit","🐰"},{"Deer","🦌"},{"Stag","🦌"},{"Fox","🦊"},{"Wolf","🐺"},{"Boar","🐗"},{"Bear","🐻"},{"Tiger","🐯"},{"Leopard","🐆"},{"Elephant","🐘"},{"Gorilla","🦍"},{"Dragon","🐉"},{"Drake","🐉"},{"Camel","🐫"},{"Snake","🐍"},{"Serpent","🐍"},{"Scorpion","🦂"},{"Shark","🦈"},{"Penguin","🐧"},{"Yeti","❄️"},{"Phoenix","🔥"},{"Bat","🦇"},{"Lizard","🦎"},{"Raptor","🦖"},{"Golem","🗿"},{"Titan","👹"},{"Coyote","🐕"},{"Sphinx","🦁"},{"Anubis","🐕"},{"Pharaoh","👑"},{"Spirit","✨"},{"Beast","👾"},{"Giant","🧊"}}
+local function emoji(n) for _,e in EM do if n:find(e[1]) then return e[2] end end return "🐾" end
+local function tile(par,rank,icon,name,sub,locked,order,sel)
+	local col=Cfg.RarCol[rank]
+	local b=N("TextButton",{Text="",LayoutOrder=order or 0,BackgroundColor3=locked and RGB(36,42,66) or col:Lerp(RGB(25,30,52),.6),AutoButtonColor=true},par) rd(b,10)
+	st(b,locked and RGB(70,76,100) or col,sel and 4 or 2)
+	lbl(b,locked and "❓" or icon,30,{Size=UDim2.new(1,0,.5,0),Position=UDim2.fromScale(0,.04)})
+	lbl(b,locked and "???" or name,11,{Size=UDim2.new(1,-4,.25,0),Position=UDim2.new(0,2,.54,0),TextColor3=locked and RGB(150,150,170) or WHITE,TextWrapped=true})
+	if sub then lbl(b,sub,11,{Size=UDim2.new(1,-4,.2,0),Position=UDim2.new(0,2,.79,0),TextColor3=col}) end
+	b.Activated:Connect(function() Sfx("ui") end) return b
+end
+local function bar(par,pos,size,col) local b=N("Frame",{Position=pos,Size=size,BackgroundColor3=RGB(14,18,36)},par) rd(b,8) local f=N("Frame",{Name="F",Size=UDim2.fromScale(0,1),BackgroundColor3=col},b) rd(f,8) return b end
+local function wstats(w) return "DMG "..fmt(w.Dmg).."  •  "..w.Rate.."/s  •  Ammo "..w.Mag.."  •  Rng "..w.Range end
+-- INVENTORY
+local inv=Win("inv","Inventory","🎒",580,400) local invTab="Weapons"
+local invSet=tabRow(inv,{"Weapons","Animals"},function() return invTab end,function(n) invTab=n Rf.inv() end,0,0)
+local invS=scroller(inv,UDim2.fromOffset(0,38),UDim2.new(1,0,1,-84)) gridL(invS,UDim2.fromOffset(86,92))
+local invInfo=lbl(inv,"",14,{Size=UDim2.new(1,-150,0,40),Position=UDim2.new(0,0,1,-42),TextXAlignment=Enum.TextXAlignment.Left,TextWrapped=true})
+local invBase=btn(inv,"🏠 Go to Base",15,GREEN,{Size=UDim2.fromOffset(140,36),Position=UDim2.new(1,-140,1,-40)}) invBase.Activated:Connect(function() Act:FireServer("TP","Base") end)
+Rf.inv=function()
+	invSet() clear(invS)
+	if invTab=="Weapons" then
+		for i,w in Cfg.W do if S.Weapons[w.Name] then
+			local eq=S.Equipped==w.Name local t=tile(invS,w.Rank,"🔫",w.Name,eq and "EQUIPPED" or Cfg.Rar[w.Rank],false,i,eq) t.Activated:Connect(function() Act:FireServer("Equip",w.Name) end)
+		end end
+		invInfo.Text="Equipped: "..S.Equipped.."  |  Damage "..fmt(S.St.dmg).."  •  "..string.format("%.1f",S.St.rate).."/s  •  Ammo "..S.St.mag.."  •  Range "..math.floor(S.St.rng)
+	else
+		for i,e in S.Animals do local d=Cfg.AN[e.n] if d then
+			local t=tile(invS,d.Rank,emoji(d.Name),d.Name,fmt(d.Inc).."/s",false,i,S.Sel==e.id) t.Activated:Connect(function() Act:FireServer("Select",e.id) end)
+		end end
+		local placed=0 for _ in S.Placed do placed+=1 end
+		invInfo.Text=(S.Sel and "Animal selected - press E on a free pedestal in your base" or "Tap an animal, then place it on a pedestal in your base").."  |  Placed "..placed.."/"..S.Slots
+	end
+end
+-- INDEX
+local idx=Win("idx","Index","📖",620,400) local idxTab="Animals"
+local idxSet=tabRow(idx,{"Animals","Weapons"},function() return idxTab end,function(n) idxTab=n Rf.idx() end,0,0,110,true)
+local idxS=scroller(idx,UDim2.fromOffset(124,0),UDim2.new(1,-124,1,-46)) gridL(idxS,UDim2.fromOffset(84,92))
+local idxCnt=lbl(idx,"",15,{Size=UDim2.fromOffset(160,36),Position=UDim2.new(0,124,1,-38),TextXAlignment=Enum.TextXAlignment.Left})
+local idxBar=bar(idx,UDim2.new(0,290,1,-30),UDim2.new(1,-296,0,20),RGB(50,170,255))
+Rf.idx=function()
+	idxSet() clear(idxS) local have,tot=0,0
+	if idxTab=="Animals" then
+		for i,a in Cfg.A do tot+=1 local got=S.Idx[a.Name] if got then have+=1 end tile(idxS,a.Rank,emoji(a.Name),a.Name,got and (fmt(a.Inc).."/s") or Cfg.Rar[a.Rank],not got,i) end
+	else
+		for i,w in Cfg.W do tot+=1 local got=S.Weapons[w.Name] if got then have+=1 end tile(idxS,w.Rank,"🔫",w.Name,Cfg.Rar[w.Rank],not got,i) end
+	end
+	idxCnt.Text="Collected: "..have.."/"..tot idxBar.F.Size=UDim2.fromScale(have/math.max(tot,1),1)
+end
+-- SHOP
+local shop=Win("shop","Shop","🛒",620,410) local shopTab="Weapons"
+local shopSet=tabRow(shop,{"Weapons","Coins","Boosts"},function() return shopTab end,function(n) shopTab=n Rf.shop() end,0,0,110,true)
+local shopS=scroller(shop,UDim2.fromOffset(124,0),UDim2.new(1,-124,1,0)) listL(shopS)
+local function row(par,order,h) local r=N("Frame",{Size=UDim2.new(1,-12,0,h or 58),BackgroundColor3=RGB(34,46,92),LayoutOrder=order},par) rd(r,10) return r end
+Rf.shop=function()
+	shopSet() clear(shopS)
+	if shopTab=="Weapons" then
+		for i,w in Cfg.W do
+			local r=row(shopS,i) local col=Cfg.RarCol[w.Rank] st(r,col,2)
+			lbl(r,"🔫",28,{Size=UDim2.fromOffset(44,58)})
+			lbl(r,w.Name.."  ["..Cfg.Rar[w.Rank].."]",16,{Size=UDim2.new(1,-200,0,26),Position=UDim2.fromOffset(48,4),TextXAlignment=Enum.TextXAlignment.Left,TextColor3=col})
+			lbl(r,wstats(w),11,{Size=UDim2.new(1,-200,0,20),Position=UDim2.fromOffset(48,32),TextXAlignment=Enum.TextXAlignment.Left,TextColor3=RGB(200,210,240)})
+			local own=S.Weapons[w.Name]
+			local txt=own and (S.Equipped==w.Name and "Equipped" or "Equip") or ((w.Cur=="c" and "🪙 " or "💎 ")..fmt(w.Cost))
+			local b=btn(r,txt,15,own and BLUE or (w.Cur=="c" and GREEN or PURP),{Size=UDim2.fromOffset(108,38),Position=UDim2.new(1,-114,.5,-19)}) b.Activated:Connect(function() Act:FireServer("Buy",w.Name) end)
+		end
+	elseif shopTab=="Coins" then
+		for i,pk in Cfg.Packs do
+			local r=row(shopS,i) lbl(r,"🪙 "..fmt(pk.c).." coins",20,{Size=UDim2.new(1,-150,1,0),Position=UDim2.fromOffset(12,0),TextXAlignment=Enum.TextXAlignment.Left,TextColor3=GOLD})
+			local b=btn(r,"💎 "..pk.g,16,PURP,{Size=UDim2.fromOffset(100,38),Position=UDim2.new(1,-108,.5,-19)}) b.Activated:Connect(function() Act:FireServer("BuyCoins",i) end)
+		end
+	else
+		for i,bd in Cfg.Boosts do
+			local left=math.max(0,(S.Boost[bd[1]] or 0)-os.time())
+			local r=row(shopS,i) lbl(r,bd[4].." "..bd[2],18,{Size=UDim2.new(1,-150,0,30),Position=UDim2.fromOffset(12,4),TextXAlignment=Enum.TextXAlignment.Left})
+			lbl(r,left>0 and ("Active: "..math.ceil(left/60).." min left") or "Not active",12,{Size=UDim2.new(1,-150,0,20),Position=UDim2.fromOffset(12,32),TextXAlignment=Enum.TextXAlignment.Left,TextColor3=RGB(200,210,240)})
+			local b=btn(r,"💎 "..bd[3],16,PURP,{Size=UDim2.fromOffset(100,38),Position=UDim2.new(1,-108,.5,-19)}) b.Activated:Connect(function() Act:FireServer("BuyBoost",bd[1]) end)
+		end
+	end
+end
+-- UPGRADES
+local up=Win("up","Upgrades","⬆️",460,440)
+local upS=scroller(up,UDim2.fromOffset(0,0),UDim2.new(1,0,1,0)) listL(upS)
+Rf.up=function()
+	clear(upS)
+	for i,u in Cfg.Up do
+		local l=S.Up[u[1]] or 0 local r=row(upS,i,56)
+		lbl(r,u[2],28,{Size=UDim2.fromOffset(48,56)})
+		lbl(r,u[1],17,{Size=UDim2.new(1,-210,0,26),Position=UDim2.fromOffset(50,4),TextXAlignment=Enum.TextXAlignment.Left})
+		lbl(r,u[4].."  Lv."..l.."/"..Cfg.UpMax,11,{Size=UDim2.new(1,-210,0,20),Position=UDim2.fromOffset(50,32),TextXAlignment=Enum.TextXAlignment.Left,TextColor3=RGB(200,210,240)})
+		local cost=Cfg.UpCost(u[3],l)
+		local b=btn(r,l>=Cfg.UpMax and "MAX" or ("🪙 "..fmt(cost)),15,S.Coins>=cost and GREEN or RGB(90,100,120),{Size=UDim2.fromOffset(112,38),Position=UDim2.new(1,-118,.5,-19)}) b.Activated:Connect(function() Act:FireServer("Up",u[1]) end)
+	end
+end
+-- REBIRTH
+local reb=Win("reb","Rebirth","🔄",430,400)
+local rebInfo=lbl(reb,"",16,{Size=UDim2.new(1,0,0,60),TextWrapped=true})
+local rebRew=lbl(reb,"",18,{Size=UDim2.new(1,0,0,110),Position=UDim2.fromOffset(0,110),TextWrapped=true,TextColor3=RGB(255,230,120)})
+lbl(reb,"🔄",64,{Size=UDim2.new(1,0,0,70),Position=UDim2.fromOffset(0,60),TextColor3=RGB(200,120,255)})
+local rebB=btn(reb,"Rebirth!",24,GREEN,{Size=UDim2.new(1,-60,0,56),Position=UDim2.new(0,30,1,-70)}) local rebArm=false
+rebB.Activated:Connect(function() if not rebArm then rebArm=true rebB.Text="Are you sure? Tap again" rebB.BackgroundColor3=RED task.delay(4,function() rebArm=false if S then Rf.reb() end end) else rebArm=false Act:FireServer("Rebirth") end end)
+Rf.reb=function()
+	rebInfo.Text="Reset your coins and upgrades to get permanent bonuses!\nNeed: 🪙 "..fmt(S.RebCost).."   (you have "..fmt(S.Coins)..")   Rebirths: "..S.Reb
+	rebRew.Text="Rewards:\n⭐ Coin multiplier x"..(S.Reb+2).."\n💎 +"..(50*(S.Reb+1)).." Gems\n🐾 +1 pedestal slot (max 12)\nKeep: animals, weapons, index"
+	rebB.Text=rebArm and "Are you sure? Tap again" or "Rebirth!" rebB.BackgroundColor3=rebArm and RED or (S.Coins>=S.RebCost and GREEN or RGB(90,100,120))
+end
+-- ZONES
+local zn=Win("zn","Zones","📍",560,300) local znF=N("Frame",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1},zn) N("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,8)},znF)
+Rf.zn=function()
+	clear(znF)
+	for i,z in Cfg.Zones do
+		local f=N("Frame",{Size=UDim2.new(.25,-6,1,0),BackgroundColor3=z.Col:Lerp(RGB(20,24,40),.55),LayoutOrder=i},znF) rd(f,12) st(f,z.Col,3)
+		lbl(f,z.Emoji,52,{Size=UDim2.new(1,0,0,70),Position=UDim2.fromOffset(0,8)})
+		lbl(f,z.Name,20,{Size=UDim2.new(1,0,0,28),Position=UDim2.fromOffset(0,84)})
+		lbl(f,"Income x"..z.Inc.."\nHP x"..z.Hp,13,{Size=UDim2.new(1,0,0,40),Position=UDim2.fromOffset(0,114),TextColor3=RGB(220,230,255)})
+		local own=S.Zones[z.Name]
+		local b=btn(f,own and "Teleport" or "Go to gate",14,own and GREEN or BLUE,{Size=UDim2.new(1,-16,0,34),Position=UDim2.new(0,8,1,-84)}) b.Activated:Connect(function() Act:FireServer("TP",own and z.Name or ("G:"..z.Name)) Close("zn") end)
+		lbl(f,own and "✅ Unlocked" or ("🔒 🪙 "..fmt(z.Cost)),14,{Size=UDim2.new(1,0,0,30),Position=UDim2.new(0,0,1,-40),TextColor3=own and RGB(120,255,140) or GOLD})
+	end
+end
+-- QUEST
+local qs=Win("qst","Quest","📜",420,240)
+local qT=lbl(qs,"",20,{Size=UDim2.new(1,0,0,40),TextWrapped=true})
+local qB=bar(qs,UDim2.fromOffset(0,60),UDim2.new(1,0,0,26),GREEN) local qP=lbl(qB,"",14,{Size=UDim2.fromScale(1,1)})
+local qR=lbl(qs,"",20,{Size=UDim2.new(1,0,0,40),Position=UDim2.fromOffset(0,110),TextColor3=GOLD})
+Rf.qst=function() local q,g,rc,rg=Cfg.Quest(S.QI) qT.Text="📌 "..string.format(q.txt,g) qB.F.Size=UDim2.fromScale(math.clamp(S.QP/g,0,1),1) qP.Text=fmt(S.QP).." / "..fmt(g) qR.Text="Reward: 🪙 "..fmt(rc).."  💎 "..rg end
+-- DAILY REWARDS
+local rw=Win("rw","Daily Rewards","🎁",560,300)
+local rwF=N("Frame",{Size=UDim2.new(1,0,0,150),BackgroundTransparency=1},rw) N("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,6)},rwF)
+local rwB=btn(rw,"Claim",20,GREEN,{Size=UDim2.new(1,-40,0,50),Position=UDim2.new(0,20,1,-64)}) rwB.Activated:Connect(function() Act:FireServer("Daily") end)
+Rf.rw=function()
+	clear(rwF) local day=math.floor(os.time()/86400) local claimed=S.Daily.t==day
+	local nextI=claimed and (S.Daily.s-1)%7+1 or ((S.Daily.t==day-1 and S.Daily.s or 0)%7)+1
+	for i,r in Cfg.Daily do
+		local f=N("Frame",{Size=UDim2.new(1/7,-6,1,0),BackgroundColor3=(i==nextI and not claimed) and RGB(60,150,70) or RGB(40,52,100),LayoutOrder=i},rwF) rd(f,10) st(f,(i==nextI and not claimed) and GREEN or RGB(70,90,160),2)
+		lbl(f,"Day "..i,13,{Size=UDim2.new(1,0,0,24)})
+		lbl(f,(r.g and "💎" or "🪙"),28,{Size=UDim2.new(1,0,0,40),Position=UDim2.fromOffset(0,28)})
+		lbl(f,(r.c and fmt(r.c) or "")..((r.c and r.g) and "\n" or "")..(r.g and fmt(r.g) or ""),12,{Size=UDim2.new(1,0,0,40),Position=UDim2.fromOffset(0,76),TextWrapped=true})
+		if claimed and i<=nextI then lbl(f,"✔",22,{Size=UDim2.new(1,0,0,26),Position=UDim2.new(0,0,1,-28),TextColor3=RGB(120,255,140)}) end
+	end
+	if claimed then local left=(day+1)*86400-os.time() rwB.Text=string.format("Next: %02d:%02d:%02d",left//3600,left%3600//60,left%60) rwB.BackgroundColor3=RGB(90,100,120) else rwB.Text="Claim Reward!" rwB.BackgroundColor3=GREEN end
+end
+-- SETTINGS
+local set=Win("set","Settings","⚙️",420,330)
+local function applyOpts()
+	Lit.GlobalShadows=not opts.Low
+	for _,c in Lit:GetChildren() do if c:IsA("BloomEffect") or c:IsA("SunRaysEffect") then c.Enabled=not opts.Low end end
+	pcall(function() workspace.Terrain.Decoration=not opts.Low end)
+	if musicS then musicS.Volume=opts.Music and .3 or 0 end
+end
+for i,o in {{"Music","Music"},{"SFX","SFX"},{"Auto","Auto Shoot"},{"Low","Low Graphics"}} do
+	lbl(set,o[2],20,{Size=UDim2.fromOffset(200,40),Position=UDim2.fromOffset(10,(i-1)*50),TextXAlignment=Enum.TextXAlignment.Left})
+	local sw=btn(set,"",14,RGB(80,86,110),{Size=UDim2.fromOffset(64,32),Position=UDim2.fromOffset(300,(i-1)*50+4),AutoButtonColor=false}) rd(sw,16)
+	local knob=N("Frame",{Size=UDim2.fromOffset(26,26),Position=UDim2.fromOffset(3,3),BackgroundColor3=WHITE},sw) rd(knob,13)
+	local function draw() sw.BackgroundColor3=opts[o[1]] and GREEN or RGB(80,86,110) knob.Position=opts[o[1]] and UDim2.fromOffset(35,3) or UDim2.fromOffset(3,3) end
+	sw.Activated:Connect(function() opts[o[1]]=not opts[o[1]] Act:FireServer("Opt",o[1],opts[o[1]]) draw() applyOpts() end)
+	Rf["set"..o[1]]=draw
+end
+Rf.set=function() for k,f in Rf do if k:sub(1,3)=="set" and #k>3 then f() end end end
+lbl(set,"Tip: tap the screen to shoot. Auto Shoot aims at the nearest animal.",13,{Size=UDim2.new(1,0,0,50),Position=UDim2.fromOffset(0,220),TextWrapped=true,TextColor3=RGB(200,210,240)})
+-- BASE
+local base=Win("base","My Base","🏠",420,300)
+local baseT=lbl(base,"",20,{Size=UDim2.new(1,0,0,130),TextWrapped=true})
+local b1=btn(base,"🏠 Teleport to Base",18,GREEN,{Size=UDim2.new(1,-40,0,46),Position=UDim2.fromOffset(20,150)}) b1.Activated:Connect(function() Act:FireServer("TP","Base") end)
+local b2=btn(base,"💰 Collect Earnings",18,GOLD,{Size=UDim2.new(1,-40,0,46),Position=UDim2.fromOffset(20,205)}) b2.Activated:Connect(function() Act:FireServer("Collect") end)
+Rf.base=function() local pl=0 for _ in S.Placed do pl+=1 end baseT.Text="Pedestals: "..S.Slots.."/12\nAnimals placed: "..pl.."\nIncome: 🪙 "..fmt(S.Inc).." / sec\nWaiting: 🪙 "..fmt(S.Pending) end
+-- HUD
+local tl=N("Frame",{Size=UDim2.fromOffset(200,330),Position=UDim2.fromOffset(10,10),BackgroundTransparency=1},gui) local tls=N("UIScale",{},tl)
+local rt=N("Frame",{Size=UDim2.fromOffset(60,270),Position=UDim2.new(1,-70,.5,-135),BackgroundTransparency=1},gui) local rts=N("UIScale",{},rt)
+local bc=N("Frame",{Size=UDim2.fromOffset(230,46),AnchorPoint=Vector2.new(.5,1),Position=UDim2.new(.5,0,1,-18),BackgroundTransparency=1},gui) local bcs=N("UIScale",{},bc)
+local function pill(y,icon,col,plus)
+	local f=N("Frame",{Size=UDim2.fromOffset(190,40),Position=UDim2.fromOffset(0,y),BackgroundColor3=RGB(26,34,70)},tl) rd(f,20) st(f,RGB(70,100,200),2)
+	lbl(f,icon,24,{Size=UDim2.fromOffset(40,40),Position=UDim2.fromOffset(2,0)})
+	local t=lbl(f,"0",22,{Size=UDim2.new(1,-90,1,0),Position=UDim2.fromOffset(44,0),TextXAlignment=Enum.TextXAlignment.Left,TextColor3=col})
+	if plus then local p=btn(f,"+",22,GREEN,{Size=UDim2.fromOffset(32,32),Position=UDim2.new(1,-36,.5,-16)}) p.Activated:Connect(function() shopTab=plus Open("shop") end) end
+	return t,f
+end
+local coinT,coinF=pill(0,"🪙",GOLD,"Weapons") local gemT=pill(46,"💎",RGB(210,120,255),"Coins") local animT=pill(92,"🐾",WHITE)
+local function menuBtn(par,x,y,icon,text,col,id,w,h)
+	local b=N("TextButton",{Text="",Size=UDim2.fromOffset(w,h),Position=UDim2.fromOffset(x,y),BackgroundColor3=col},par) rd(b,10) st(b,col:Lerp(Color3.new(0,0,0),.5),3)
+	lbl(b,icon,h>60 and 30 or 28,{Size=UDim2.new(1,0,.65,0)}) lbl(b,text,12,{Size=UDim2.new(1,0,.3,0),Position=UDim2.fromScale(0,.68)})
+	b.Activated:Connect(function() Sfx("ui") Open(id) end) return b
+end
+for i,m in {{"🛒","Shop",GOLD,"shop"},{"⬆️","Upgrades",BLUE,"up"},{"📖","Index",RGB(70,130,220),"idx"},{"🎁","Rewards",RED,"rw"},{"🔄","Rebirth",PURP,"reb"},{"⚙️","Settings",RGB(60,150,240),"set"}} do
+	menuBtn(tl,((i-1)%3)*66,140+((i-1)//3)*74,m[1],m[2],m[3],m[4],62,68)
+end
+for i,m in {{"🎒","Items",RGB(60,170,90),"inv"},{"📍","Zones",RGB(230,120,40),"zn"},{"🏠","Base",RGB(60,150,240),"base"},{"📜","Quest",RGB(190,150,60),"qst"}} do
+	menuBtn(rt,0,(i-1)*68,m[1],m[2],m[3],m[4],60,62)
+end
+local ammoF=N("Frame",{Size=UDim2.fromOffset(170,44),BackgroundColor3=RGB(26,34,70),Visible=false},bc) rd(ammoF,12) st(ammoF,RGB(70,100,200),2)
+local ammoT=lbl(ammoF,"🔫 0/0",22,{Size=UDim2.fromScale(1,1)})
+local relB=btn(bc,"🔄",24,BLUE,{Size=UDim2.fromOffset(50,44),Position=UDim2.fromOffset(178,0)}) relB.Activated:Connect(function() Act:FireServer("Reload") end)
+local function fit() local v=gui.AbsoluteSize local s=math.clamp(v.Y/700,.62,1.1) tls.Scale=s rts.Scale=s bcs.Scale=s end
+gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit) fit()
+-- TOASTS / BANNER / FX UI
+local toastF=N("Frame",{Size=UDim2.fromOffset(340,200),AnchorPoint=Vector2.new(.5,0),Position=UDim2.new(.5,0,0,14),BackgroundTransparency=1},gui) N("UIListLayout",{Padding=UDim.new(0,6),HorizontalAlignment=Enum.HorizontalAlignment.Center},toastF)
+local function toast(text,col)
+	local f=N("Frame",{Size=UDim2.fromOffset(320,40),BackgroundColor3=RGB(26,30,64)},toastF) rd(f,12) st(f,col or RGB(120,100,255),2)
+	lbl(f,text,16,{Size=UDim2.fromScale(1,1),TextWrapped=true,TextColor3=col or WHITE})
+	task.delay(3,function() TS:Create(f,TweenInfo.new(.4),{BackgroundTransparency=1}):Play() for _,c in f:GetDescendants() do if c:IsA("TextLabel") then TS:Create(c,TweenInfo.new(.4),{TextTransparency=1,TextStrokeTransparency=1}):Play() end end task.wait(.45) f:Destroy() end)
+	if #toastF:GetChildren()>6 then toastF:GetChildren()[2]:Destroy() end
+end
+local function banner(t1,t2,col)
+	local f=N("Frame",{Size=UDim2.fromOffset(420,110),AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.3),BackgroundColor3=col:Lerp(RGB(20,10,10),.55)},gui) rd(f,18) st(f,col,4)
+	local sc=N("UIScale",{Scale=0},f) lbl(f,t1,32,{Size=UDim2.new(1,0,.55,0),TextColor3=GOLD}) lbl(f,t2,24,{Size=UDim2.new(1,0,.4,0),Position=UDim2.fromScale(0,.55),TextColor3=col})
+	TS:Create(sc,TweenInfo.new(.4,Enum.EasingStyle.Back),{Scale=math.min(1,gui.AbsoluteSize.X/460)}):Play()
+	task.delay(3.2,function() TS:Create(sc,TweenInfo.new(.25),{Scale=0}):Play() task.wait(.3) f:Destroy() end)
+end
+local function coinFly(n)
+	Sfx("coin") if n<=0 then return end
+	local c=coinF.AbsolutePosition+Vector2.new(24,20)
+	for i=1,8 do task.delay(i*.05,function()
+		local l=lbl(gui,"🪙",28,{Size=UDim2.fromOffset(34,34),Position=UDim2.fromScale(.5,.6),AnchorPoint=Vector2.new(.5,.5),TextStrokeTransparency=1})
+		local t=TS:Create(l,TweenInfo.new(.6,Enum.EasingStyle.Quad),{Position=UDim2.fromOffset(c.X,c.Y)}) t:Play() t.Completed:Once(function() l:Destroy() end)
+	end) end
+end
+-- WORLD FX
+local function fxPart(pos) return N("Part",{Anchored=true,CanCollide=false,CanQuery=false,Transparency=1,Size=Vector3.one*.5,Position=pos},workspace) end
+local function burst(pos,col,n,size)
+	local p=fxPart(pos) local e=N("ParticleEmitter",{Color=ColorSequence.new(col),Size=NumberSequence.new(size,0),Lifetime=NumberRange.new(.5,1),Speed=NumberRange.new(10,22),SpreadAngle=Vector2.new(360,360),Rate=0,LightEmission=1,Transparency=NumberSequence.new(0,1)},p)
+	e:Emit(n) Debris:AddItem(p,1.5)
+end
+local function tracer(a,b,col)
+	local d=(b-a).Magnitude if d<1 then return end
+	local p=N("Part",{Anchored=true,CanCollide=false,CanQuery=false,Material=Enum.Material.Neon,Color=col,Size=Vector3.new(.15,.15,d),CFrame=CFrame.lookAt(a:Lerp(b,.5),b)},workspace)
+	TS:Create(p,TweenInfo.new(.12),{Transparency=1}):Play() Debris:AddItem(p,.15)
+end
+local function dmgPop(pos,n,crit)
+	local p=fxPart(pos+Vector3.new(math.random(-10,10)/10,1,0))
+	local bb=N("BillboardGui",{Size=UDim2.fromOffset(100,40),AlwaysOnTop=true,StudsOffset=Vector3.new(0,0,0)},p)
+	local t=lbl(bb,(crit and "💥 " or "")..fmt(n),crit and 28 or 22,{Size=UDim2.fromScale(1,1),TextColor3=crit and RGB(255,220,50) or WHITE})
+	TS:Create(bb,TweenInfo.new(.8),{StudsOffset=Vector3.new(0,4,0)}):Play() TS:Create(t,TweenInfo.new(.8),{TextTransparency=1,TextStrokeTransparency=1}):Play() Debris:AddItem(p,.9)
+end
+local function flash()
+	local f=N("Frame",{Size=UDim2.fromScale(1,1),BackgroundColor3=WHITE,BackgroundTransparency=0,ZIndex=50},gui) local t=TS:Create(f,TweenInfo.new(1.2),{BackgroundTransparency=1}) t:Play() t.Completed:Once(function() f:Destroy() end)
+end
+-- SHOOTING
+local tool,holding,ammo,mag,reloading,lastFire=nil,false,0,0,false,0
+local function setAmmo() ammoT.Text="🔫 "..ammo.."/"..mag ammoF.Visible=tool~=nil relB.Visible=tool~=nil end
+local function nearestAnimal()
+	local c=lp.Character local r=c and c:FindFirstChild("HumanoidRootPart") local f=workspace:FindFirstChild("Animals") if not r or not f or not S then return end
+	local best,bd=nil,S.St.rng
+	for _,m in f:GetChildren() do local b=m.PrimaryPart if b and S.Zones[m:GetAttribute("Zone")] then local d=(b.Position-r.Position).Magnitude if d<bd then best,bd=b.Position,d end end end
+	return best
+end
+local function fire(tgt)
+	local c=lp.Character local head=c and c:FindFirstChild("Head") if not head or not tool or not S then return end
+	local now=os.clock() if now-lastFire<1/S.St.rate or reloading then return end
+	if ammo<=0 then Act:FireServer("Reload") return end
+	lastFire=now ammo-=1 setAmmo()
+	local dir=tgt-head.Position Act:FireServer("Shoot",dir)
+	local rng=S.St.rng local endp=head.Position+dir.Unit*math.min(dir.Magnitude,rng)
+	local m=tool:FindFirstChild("Muzzle",true) local o=m and m.WorldPosition or head.Position
+	local w=Cfg.WN[S.Equipped] tracer(o,endp,Cfg.RarCol[w.Rank]) burst(o,Cfg.RarCol[w.Rank],4,.6) Sfx("shoot")
+end
+local function hook(c)
+	c.ChildAdded:Connect(function(t) if t:IsA("Tool") then tool=t setAmmo() t.Activated:Connect(function() holding=true end) t.Deactivated:Connect(function() holding=false end) end end)
+	c.ChildRemoved:Connect(function(t) if t==tool then tool=nil holding=false setAmmo() end end)
+end
+lp.CharacterAdded:Connect(hook)
+if lp.Character then hook(lp.Character) for _,t in lp.Character:GetChildren() do if t:IsA('Tool') then tool=t t.Activated:Connect(function() holding=true end) t.Deactivated:Connect(function() holding=false end) end end end
+task.spawn(function() while true do task.wait()
+	if tool and S then
+		if opts.Auto then local t=nearestAnimal() if t then fire(t) end elseif holding then fire(mouse.Hit.Position) end
+	end
+end end)
+-- PUSH
+Push.OnClientEvent:Connect(function(k,a,b,c,d,e)
+	if k=="State" then
+		local first=S==nil S=a
+		if first then for o,v in S.Opts do opts[o]=v end applyOpts() end
+		coinT.Text=fmt(S.Coins) gemT.Text=fmt(S.Gems)
+		local n=#S.Animals for _ in S.Placed do n+=1 end animT.Text=tostring(n)
+		if cur and Rf[cur] then Rf[cur]() end
+	elseif k=="Notify" then toast(a,b)
+	elseif k=="Ammo" then ammo,mag=a,b setAmmo()
+	elseif k=="Reload" then reloading=true ammoT.Text="Reloading..." Sfx("reload") task.delay(a,function() reloading=false setAmmo() end)
+	elseif k=="Tracer" then tracer(a,b,c) Sfx("shoot")
+	elseif k=="Hit" then dmgPop(a,b,c) Sfx("hit") burst(a,WHITE,6,.4)
+	elseif k=="Caught" then
+		local col=Cfg.RarCol[b] burst(e,col,40,1) Sfx("caught")
+		toast("You caught "..a.." ["..Cfg.Rar[b].."]"..(c>0 and ("  +💎"..c) or "")..(d and "  NEW!" or ""),col)
+	elseif k=="Coin" then coinFly(a)
+	elseif k=="Sfx" then Sfx(a)
+	elseif k=="ZoneUnlocked" then local z for _,zz in Cfg.Zones do if zz.Name==a then z=zz end end Sfx("unlock") banner("New Zone Unlocked!",z.Emoji.." "..a.." Zone",z.Col)
+	elseif k=="Rebirth" then flash() Sfx("unlock") banner("REBIRTH!","x"..(a+1).." coin multiplier",PURP) end
+end)
+-- music
+if Cfg.Snd.Music~="" then musicS=N("Sound",{SoundId=Cfg.Snd.Music,Looped=true,Volume=.3},SndS) musicS:Play() end
+-- gates unlocked locally
+task.spawn(function() while true do task.wait(1.5)
+	local g=workspace:FindFirstChild("Gates")
+	if g and S then for _,m in g:GetChildren() do
+		local b=m:FindFirstChild("Barrier") local z=Cfg.Zones[m:GetAttribute("Zone")]
+		if b and z and S.Zones[z.Name] then b.CanCollide=false b.Transparency=1 local pr=b:FindFirstChild("Prompt") if pr then pr.Enabled=false end end
+	end end
+	if cur=="rw" or cur=="shop" then if S then Rf[cur]() end end
+end end)
+-- lava glow
+local function lava(p) TS:Create(p,TweenInfo.new(1.2+math.random(),Enum.EasingStyle.Sine,Enum.EasingDirection.InOut,-1,true),{Color=RGB(255,60,10)}):Play() end
+for _,p in CS:GetTagged("Lava") do lava(p) end CS:GetInstanceAddedSignal("Lava"):Connect(lava)
+-- animal animation
+local anims={}
+local function reg(m)
+	local legs={} for i=1,4 do local l=m:WaitForChild("Leg"..i,5) local w=l and l:FindFirstChild("W") if w then legs[i]={w=w,c0=w.C0} end end
+	anims[m]={legs=legs,ph=math.random()*6}
+	m:GetAttributeChangedSignal("Hit"):Connect(function()
+		local h=N("Highlight",{FillColor=WHITE,FillTransparency=.3,OutlineTransparency=1,DepthMode=Enum.HighlightDepthMode.Occluded},m) Debris:AddItem(h,.15)
+	end)
+end
+task.spawn(function()
+	local f=workspace:WaitForChild("Animals")
+	for _,m in f:GetChildren() do task.spawn(reg,m) end
+	f.ChildAdded:Connect(function(m) task.spawn(reg,m) end) f.ChildRemoved:Connect(function(m) anims[m]=nil end)
+end)
+RunS.RenderStepped:Connect(function()
+	local cam=workspace.CurrentCamera local t=os.clock()
+	for m,a in anims do
+		local b=m.PrimaryPart
+		if b and (b.Position-cam.CFrame.Position).Magnitude<160 then
+			local s=m:GetAttribute("State") local f=s=="Run" and 13 or s=="Walk" and 6 or 0
+			for i,l in a.legs do
+				local ang=0
+				if f>0 then ang=math.sin(t*f+a.ph+((i==1 or i==4) and 0 or math.pi))*.7 elseif s=="Alert" and i<=2 then ang=-.5 end
+				l.w.C0=l.c0*CFrame.Angles(ang,0,0)
+			end
+		end
+	end
+end)
+]]></ProtectedString></Properties></Item></Item></Item><Item class="Players" referent="RBX17"><Properties><string name="Name">Players</string></Properties></Item><Item class="SoundService" referent="RBX18"><Properties><string name="Name">SoundService</string></Properties></Item></roblox>
